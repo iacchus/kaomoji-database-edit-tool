@@ -243,11 +243,8 @@ class KaomojiDB:
 
         return self.kaomojis[kaomoji.code]
 
-    def compare(self, other: KaomojiDB) -> dict[str: Kaomoji]:
+    def compare(self, other) -> dict[str: Kaomoji]:
         """Compares two KaomojiDB instances."""
-
-        # Test `other` to see if is an instance os KaomojiDB; throw exception
-        #   if not.
 
         if not isinstance(other, KaomojiDB):
             raise TypeError("other is not a KaomojiDB")
