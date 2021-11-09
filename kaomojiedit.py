@@ -15,8 +15,20 @@ from kaomoji import KaomojiDB
 from kaomoji import KaomojiDBKaomojiExists
 from kaomoji import KaomojiDBKaomojiDoesntExist
 
+class KaomojiToolNoDatabase(Exception):
+    description="Kaomoji edit tool could'nt open database"
+    def __init__(self, *args, **kwargs):
+        super().__init__(self.description, *args, **kwargs)
 
-# def get_user_config_file(filename=USER_CONFIG_FILE):
+DEFAULT_CONFIG = {
+    'database_filename': './emoticons.tsv',
+}
+
+USER_CONFIG_FILE = os.path.expanduser("~/.kaomojiedit")
+USER_CONFIG: dict
+
+CONFIG = DEFAULT_CONFIG  # initialize it with defaults
+
 def get_user_config_file(filename):
 
     config_file = os.path.expanduser(filename)
@@ -24,7 +36,7 @@ def get_user_config_file(filename):
     if os.path.isfile(config_file):
         return toml.load(config_file)
 
-    return {}
+    return DEFAULT_CONFIG
 
 def backup_db(db: KaomojiDB):
 
@@ -43,14 +55,7 @@ def open_database(database_filename):
     return None
 
 
-DEFAULT_CONFIG = {
-    'database_filename': './emoticons.tsv',
-}
-
-USER_CONFIG_FILE = os.path.expanduser("~/.kaomojiedit")
 USER_CONFIG = dict()
-
-CONFIG = DEFAULT_CONFIG  # initialize it with defaults
 
 if os.path.isfile(USER_CONFIG_FILE):
     USER_CONFIG = get_user_config_file(filename=USER_CONFIG_FILE)
@@ -134,8 +139,7 @@ def add(database_filename, kaomoji_code, keywords, config_filename):
     kaomojidb = open_database(database_filename=db_filename)
 
     if not kaomojidb:
-        print("else here!! DATABASE NEEDED")
-        exit(1)
+        raise KaomojiToolNoDatabase
 
     #kaomojidb = open_database(database_filename=database_filename)
 
@@ -194,8 +198,7 @@ def rm(database_filename, kaomoji_code, config_filename):
     kaomojidb = open_database(database_filename=db_filename)
 
     if not kaomojidb:
-        print("else here!! DATABASE NEEDED")
-        exit(1)
+        raise KaomojiToolNoDatabase
 
     if isinstance(kaomoji_code, str) and kaomoji_code != "":
         #kaomoji_to_remove = Kaomoji(code=kaomoji_code, keywords=keywords)

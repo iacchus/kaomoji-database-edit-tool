@@ -26,8 +26,8 @@ class KaomojiKaomojiKeywordDoesntExist(Exception):
 class Kaomoji:
     """Represents a Kaomoji entity."""
 
-    code = str()  # unicode of the kaomoji
-    keywords = list()  # list of strings
+    code: str = str()  # unicode of the kaomoji
+    keywords: list[str] = list()  # list of strings
 
     def __init__(self, code=None, keywords=None):
 
@@ -82,6 +82,7 @@ class Kaomoji:
         """Removes a keyword to this kaomoji entity."""
 
         if keyword in self.keywords:
+            # self.keywords.remove(keyword.strip())
             self.keywords.remove(keyword.strip())
 
     def remove_keywords_str(self, keywords_str: str) -> None:
@@ -116,7 +117,7 @@ class Kaomoji:
 
         return line_entry
 
-    def _make_hash(self, code) -> int:
+    def _make_hash(self, code, self_register=False) -> int:
         """Gives a UUID for a given kaomoji, for comparison.
 
         It is the base10 of the sha256 digest of the kaomoji code:
@@ -131,9 +132,12 @@ class Kaomoji:
 
         the_hash = int(code_sha256_hex_digestion, base=16)
 
+        if self_register:
+            self.hash = the_hash
+
         return the_hash
 
-    def _make_shortcode(self, thehash) -> str:
+    def _make_shortcode(self, the_hash) -> str:
         pass
 
     def _make_inits(self):
@@ -226,7 +230,6 @@ class KaomojiDB:
         database_file = open(filename, "w")
 
         for kaomoji in self.kaomojis.values():
-            #code = kaomoji.code
             database_entry_line = kaomoji.to_line_entry()
             database_file.write(database_entry_line)
 
