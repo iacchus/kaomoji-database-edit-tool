@@ -1,5 +1,9 @@
 from hashlib import sha256
 
+class KaomojiDBKaomojiExists(Exception):
+    description="Kaomoji already exists in the KaomojiDB"
+    def __init__(self, *args, **kwargs):
+        super().__init__(self.description, *args, **kwargs)
 
 class Kaomoji:
     """Represents a Kaomoji entity."""
@@ -139,10 +143,10 @@ class KaomojiDB:
         db_file.close()
         self.load_file(filename=filename)
 
-    def kaomoji_exists(self, other: Kaomoji) -> bool:
+    def kaomoji_exists(self, kaomoji: Kaomoji) -> bool:
         """Checks if a kaomoji exists already in the database."""
 
-        if other.code in self.kaomojis:
+        if kaomoji.code in self.kaomojis:
                 return True
 
         return False

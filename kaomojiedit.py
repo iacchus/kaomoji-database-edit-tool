@@ -11,6 +11,8 @@ import click
 from kaomoji import Kaomoji
 from kaomoji import KaomojiDB
 
+from kaomoji import KaomojiDBKaomojiExists
+
 
 def backup_db(db: KaomojiDB):
 
@@ -58,8 +60,8 @@ database_filename_option = click.option(
     default=None,
     help="Kaomoji database file name.")
 
-kaomoji_option = click.option(
-    "-k", "--kaomoji", "kaomoji",
+kaomoji_code_option = click.option(
+    "-k", "--kaomoji", "kaomoji_code",
     default=None,
     prompt="Kaomoji",
     help="Kaomoji; use - to read from STDIN.")
@@ -76,12 +78,25 @@ keywords_option = click.option(
 ###############################################################################
 @cli.command()
 @database_filename_option
-@kaomoji_option
-def add(database_filename, kaomoji, keywords):
+@kaomoji_code_option
+def add(database_filename, kaomoji_code, keywords):
     """Adds the selected kaomoji from the selected database"""
 
     kaomojidb = open_database(database_filename=database_filename)
-    print(kaomoji)
+
+    if isinstance(str, kaomoji_code) and kaomoji_code != "":
+        new_kaomoji = Kaomoji(code=kaomoji_code)
+
+    if kaomojidb:
+        backup_db(db=kaomojidb)
+    else:
+        raise FileNotFoundError
+
+    if not kaomojidb.kaomoji_exists(new_kaomoji):
+        kaomojidb.add_kaomoji(kaomoji)
+    else:
+        raise KaomojiDBKaomojiExists
+
 
 
 ###############################################################################
@@ -89,10 +104,10 @@ def add(database_filename, kaomoji, keywords):
 ###############################################################################
 @cli.command()
 @database_filename_option
-@kaomoji_option
+@kaomoji_code_option
 @keywords_add_option
 @keywords_remove_option
-def edit(database_filename, kaomoji, keywords_add, keywords_rm):
+def edit(database_filename, kaomoji_code, keywords_add, keywords_rm):
     """Edits the selected kaomoji, adding or removing keywords"""
 
     kaomojidb = open_database(database_filename=database_filename)
@@ -103,8 +118,8 @@ def edit(database_filename, kaomoji, keywords_add, keywords_rm):
 ###############################################################################
 @cli.command()
 @database_filename_option
-@kaomoji_option
-def rm(database_filename, kaomoji=None):
+@kaomoji_code_option
+def rm(database_filename, kaomoji_code):
     """Removes the selected kaomoji from the selected database"""
 
     kaomojidb = open_database(database_filename=database_filename)
@@ -115,9 +130,9 @@ def rm(database_filename, kaomoji=None):
 ###############################################################################
 @cli.command()
 @database_filename_option
-@kaomoji_option
+@kaomoji_code_option
 @keywords_option
-def kwadd(database_filename, kaomoji, keywords):
+def kwadd(database_filename, kaomoji_code, keywords):
     """Adds a comma-separated list of keywords to the selected kaomoji at the
     selected database.
     """
@@ -130,9 +145,9 @@ def kwadd(database_filename, kaomoji, keywords):
 ###############################################################################
 @cli.command()
 @database_filename_option
-@kaomoji_option
+@kaomoji_code_option
 @keywords_option
-def kwrm(database_filename, kaomoji, keywords):
+def kwrm(database_filename, kaomoji_code, keywords):
     """Removes a comma-separated list of keywords to the selected kaomoji at
     the selected database.
     """
