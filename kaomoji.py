@@ -29,13 +29,15 @@ class Kaomoji:
     code = str()  # unicode of the kaomoji
     keywords = list()  # list of strings
 
-    def __init__(self, code, keywords=False):
+    def __init__(self, code=None, keywords=None):
 
-        self.code = code
 
-        if keywords:
-            self.keywords = [keyword.strip()
-                             for keyword in keywords.split(',')]
+        self.code = code if code else None
+
+        if isinstance(keywords, str):
+            self.add_keywords_str(keywords)
+        elif isinstance(keywords, list):
+            self.add_keywords_list(keywords)
 
         self.hash = self._makehash(code)
 
@@ -53,13 +55,26 @@ class Kaomoji:
         keywords = [keyword.strip() for keyword in keywords_str.split(',')]
         self.add_keywords_list(keywords_list=keywords)
 
-
     def add_keywords_list(self, keywords_list: list[str]) -> None:
 
         if not isinstance(keywords_list, list):
             raise TypeError("keywords_list is not a list")
 
-        self.keywords += keywords_list
+        resume = list(set(self.keywords + keywords_list))
+
+        self.keywords = resume
+
+    def from_line_entry(self, line_entry: str):
+
+        self.code = str()  # unicode of the kaomoji
+        self.keywords = list()  # list of strings
+
+        line = line_entry.strip()
+        code, keywords_str = line_entry.split('\t', maxsplit=1)
+        self.code = code
+        self.add_keywords_str(keywords_str)
+
+        self.hash = self._makehash(code)
 
     def remove_keyword(self, keyword) -> None:
         """Removes a keyword to this kaomoji entity."""
@@ -84,6 +99,18 @@ class Kaomoji:
             kw = keyword.strip()
             if kw in self.keywords:
                 self.keywords.remove(kw)
+
+    def to_line_entry(self, register=True):
+        code = self.code
+        keywords_str = ", ".join([keyword.strip()
+                                  for keyword in self.keywords])
+        line_entry = "{code}\t{keywords_str}\n"\
+            .format(code=code, keywords_str=keywords_str)
+
+        if register:
+            self.line_entry = line_entry
+
+        return line_entry
 
     def _makehash(self, code) -> int:
         """Gives a UUID for a given kaomoji, for comparison.

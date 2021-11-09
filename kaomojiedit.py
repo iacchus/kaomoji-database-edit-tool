@@ -81,15 +81,16 @@ database_filename_option = click.option(
 
 kaomoji_code_option = click.option(
     "-k", "--kaomoji", "kaomoji_code",
-    default=None,
-    prompt="Kaomoji",
+    #default=None,
+    default=click.get_text_stream('stdin').read().strip(),
+    #prompt="Kaomoji",
     type=str,
     help="Kaomoji; use - to read from STDIN.")
 
 keywords_option = click.option(
     "-w", "--keywords", "keywords",
     default=None,
-    prompt="Keywords, comma-separated",
+    #prompt="Keywords, comma-separated",
     type=str,
     help="Comma-separated list of keywords to change.")
 
@@ -248,11 +249,5 @@ def kwrm(database_filename, kaomoji_code, keywords):
 
 
 if __name__ == "__main__":
-
-    # CONFIG = DEFAULT_CONFIG  # initialize it with defaults
-    #
-    # if os.path.isfile(USER_CONFIG_FILE):
-    #     USER_CONFIG = get_user_config_file(filename=USER_CONFIG_FILE)
-    #     CONFIG.update(USER_CONFIG)
 
     cli()
