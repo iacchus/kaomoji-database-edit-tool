@@ -76,7 +76,6 @@ class Kaomoji:
 class KaomojiDB:
     """Offers facilities to edit and check the DB file."""
 
-
     def __init__(self, filename=None):
         """
         Args:
@@ -91,8 +90,9 @@ class KaomojiDB:
         """
         if filename:
 
-            self.filename = filename
-            self.load_file(filename=self.filename)
+            #self.filename = filename
+            #self.load_file(filename=self.filename)
+            self.load_file(filename=filename)
 
     def load_file(self, filename):
         """ Loads a db file reading it in the format usable by KaomojiDB class.
@@ -102,6 +102,7 @@ class KaomojiDB:
         self.kaomojis = dict()
         self.entry_num = int()
 
+        # TODO: check here for errors
         db_file = open(filename, "r")
         #with open(filename) as dbfile:
         lines = db_file.readlines()
