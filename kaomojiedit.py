@@ -115,12 +115,16 @@ def add(database_filename, kaomoji_code, keywords, config_filename):
         CONFIG.update(user_config)
 
     if database_filename:
-        kaomojidb = open_database(database_filename=database_filename)
-    elif 'database_filename' in CONFIG:
-        kaomojidb = open_database(database_filename=USER_CONFIG['database_filename'])
-    else:
+        CONFIG.update({'database_filename': database_filename})
+
+    db_filename = CONFIG['database_filename']
+    kaomojidb = open_database(database_filename=db_filename)
+
+    if not kaomojidb:
         print("else here!! DATABASE NEEDED")
         exit(1)
+
+    #kaomojidb = open_database(database_filename=database_filename)
 
     if isinstance(kaomoji_code, str) and kaomoji_code != "":
         new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)

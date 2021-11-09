@@ -1,9 +1,27 @@
 from hashlib import sha256
 
+# let's make a notebook of exceptions here: we can use it later or not
+
 class KaomojiDBKaomojiExists(Exception):
     description="Kaomoji already exists in the KaomojiDB"
     def __init__(self, *args, **kwargs):
         super().__init__(self.description, *args, **kwargs)
+
+class KaomojiDBKaomojiDoesntExist(Exception):
+    description="Kaomoji doesn't exist in the KaomojiDB"
+    def __init__(self, *args, **kwargs):
+        super().__init__(self.description, *args, **kwargs)
+
+class KaomojiKaomojiKeywordExists(Exception):
+    description="The keyword already exists in the Kaomoji"
+    def __init__(self, *args, **kwargs):
+        super().__init__(self.description, *args, **kwargs)
+
+class KaomojiKaomojiKeywordDoesntExist(Exception):
+    description="The keyword doesn't already exists in the Kaomoji"
+    def __init__(self, *args, **kwargs):
+        super().__init__(self.description, *args, **kwargs)
+
 
 class Kaomoji:
     """Represents a Kaomoji entity."""
@@ -21,25 +39,53 @@ class Kaomoji:
 
         self.hash = self._makehash(code)
 
-    def add_keyword(self, keyword):
+    def add_keyword(self, keyword) -> None:
         """Adds a keyword to this kaomoji entity."""
 
         if not keyword in self.keywords:
             self.keywords.append(keyword.strip())
 
-    def add_keywords_str(self):
-        pass
+    def add_keywords_str(self, keywords_str: str) -> None:
 
-    def add_keywords_list(self):
-        pass
+        if not isinstance(keywords_str, str):
+            raise TypeError("keywords_str is not a str")
 
-    def remove_keyword(self, keyword):
+        keywords = [keyword.strip() for keyword in keywords_str.split(',')]
+        self.add_keywords_list(keywords_list=keywords)
+
+
+    def add_keywords_list(self, keywords_list: list[str]) -> None:
+
+        if not isinstance(keywords_list, list):
+            raise TypeError("keywords_list is not a list")
+
+        self.keywords += keywords_list
+
+    def remove_keyword(self, keyword) -> None:
         """Removes a keyword to this kaomoji entity."""
 
         if keyword in self.keywords:
             self.keywords.remove(keyword.strip())
 
-    def _makehash(self, code):
+    def remove_keywords_str(self, keywords_str: str) -> None:
+
+        if not isinstance(keywords_str, str):
+            raise TypeError("keywords_str is not a str")
+
+        keywords = [keyword.strip() for keyword in keywords_str.split(',')]
+        self.add_keywords_list(keywords_list=keywords)
+
+    def remove_keywords_list(self, keywords_list: list[str]) -> None:
+
+        if not isinstance(keywords_list, list):
+            raise TypeError("keywords_list is not a list")
+
+        for keyword in keywords_list:
+            kw = keyword.strip()
+            if kw in self.keywords:
+                self.keywords.remove(kw)
+
+    def _makehash(self, code) -> int:
         """Gives a UUID for a given kaomoji, for comparison.
 
         It is the base10 of the sha256 digest of the kaomoji code:
@@ -55,6 +101,9 @@ class Kaomoji:
         the_hash = int(code_sha256_hex_digestion, base=16)
 
         return the_hash
+
+    def _make_shortcode(self, thehash=None) -> str:
+        pass
 
     def __eq__(self, other):
         """ Implements the == (equality) operator to compare two Kaomoji
@@ -147,7 +196,7 @@ class KaomojiDB:
             db_file.write(db_line)
 
         db_file.close()
-        self.load_file(filename=filename)
+        self.load_file(filename=self.filename)
 
     def kaomoji_exists(self, kaomoji: Kaomoji) -> bool:
         """Checks if a kaomoji exists already in the database."""
@@ -194,11 +243,14 @@ class KaomojiDB:
 
         return self.kaomojis[kaomoji.code]
 
-    def compare(self, othera) -> dict[str: Kaomoji]:
+    def compare(self, other: KaomojiDB) -> dict[str: Kaomoji]:
         """Compares two KaomojiDB instances."""
 
         # Test `other` to see if is an instance os KaomojiDB; throw exception
         #   if not.
+
+        if not isinstance(other, KaomojiDB):
+            raise TypeError("other is not a KaomojiDB")
 
         differences_dict = dict()
 
