@@ -137,13 +137,19 @@ class Kaomoji:
 
         return the_hash
 
-    def _make_shortcode(self, the_hash) -> str:
+    def _make_shortcode(self, the_hash, self_register=False) -> str:
         pass
 
     def _make_inits(self):
         if self.code:
             self.hash = self._make_hash(code=self.code)
             self.shortcode = self._make_shortcode(self.hash)
+
+    def _hash_to_shortcode(self):
+        pass
+
+    def _shortcode_to_hash(self):
+        pass
 
     def __eq__(self, other):
         """ Implements the == (equality) operator to compare two Kaomoji
