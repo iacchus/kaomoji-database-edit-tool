@@ -1,7 +1,7 @@
 # kaomoji-specific
 
 *.tsv
-*.tsv.bkp
+*.bkp
 .idea/
 .vscode/
 
