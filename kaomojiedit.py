@@ -141,17 +141,13 @@ def add(database_filename, kaomoji_code, keywords, config_filename):
     if not kaomojidb:
         raise KaomojiToolNoDatabase
 
-    #kaomojidb = open_database(database_filename=database_filename)
-
     if isinstance(kaomoji_code, str) and kaomoji_code != "":
         new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
 
-    if kaomojidb:
-        backup_db(db=kaomojidb)
-    else:
-        raise FileNotFoundError
-
     if not kaomojidb.kaomoji_exists(new_kaomoji):
+        print("Backing up the database...")
+        backup_db(db=kaomojidb)
+
         print("Adding...")
         print("kaomoji: ", new_kaomoji.code)
         print("keywords: ", new_kaomoji.keywords)
@@ -171,10 +167,42 @@ def add(database_filename, kaomoji_code, keywords, config_filename):
 @kaomoji_code_option
 @keywords_add_option
 @keywords_remove_option
-def edit(database_filename, kaomoji_code, keywords_add, keywords_rm):
-    """Edits the selected kaomoji, adding or removing keywords"""
+@config_filename_option
+def edit(database_filename, kaomoji_code, keywords_add, keywords_rm,
+         config_filename):
+    """Edits the selected kaomoji to the selected database, adding or removing
+    keywords.
+    """
 
-    kaomojidb = open_database(database_filename=database_filename)
+    if config_filename and os.path.isfile(config_filename):
+        user_config = get_user_config_file(filename=USER_CONFIG_FILE)
+        CONFIG.update(user_config)
+
+    if database_filename:
+        CONFIG.update({'database_filename': database_filename})
+
+    db_filename = CONFIG['database_filename']
+    kaomojidb = open_database(database_filename=db_filename)
+
+    if not kaomojidb:
+        raise KaomojiToolNoDatabase
+
+    if isinstance(kaomoji_code, str) and kaomoji_code != "":
+        new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
+
+    if not kaomojidb.kaomoji_exists(new_kaomoji):
+        print("Backing up the database...")
+        backup_db(db=kaomojidb)
+
+        print("Adding...")
+        print("kaomoji: ", new_kaomoji.code)
+        print("keywords: ", new_kaomoji.keywords)
+        kaomojidb.add_kaomoji(new_kaomoji)
+    else:
+        raise KaomojiDBKaomojiExists
+
+    click.echo("Writing db {}".format(kaomojidb.filename))
+    kaomojidb.write()
 
 
 ###############################################################################
@@ -201,15 +229,12 @@ def rm(database_filename, kaomoji_code, config_filename):
         raise KaomojiToolNoDatabase
 
     if isinstance(kaomoji_code, str) and kaomoji_code != "":
-        #kaomoji_to_remove = Kaomoji(code=kaomoji_code, keywords=keywords)
         kaomoji_to_remove = Kaomoji(code=kaomoji_code)
 
-    if kaomojidb:
-        backup_db(db=kaomojidb)
-    else:
-        raise FileNotFoundError
-
     if kaomojidb.kaomoji_exists(kaomoji_to_remove):
+        print("Backing up the database...")
+        backup_db(db=kaomojidb)
+
         print("Removing...")
         print("kaomoji: ", kaomoji_to_remove.code)
         print("keywords: ", kaomoji_to_remove.keywords)
