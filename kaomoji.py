@@ -39,7 +39,8 @@ class Kaomoji:
         elif isinstance(keywords, list):
             self.add_keywords_list(keywords)
 
-        self.hash = self._makehash(code)
+        # self.hash = self._makehash(code)
+        self._make_inits()
 
     def add_keyword(self, keyword) -> None:
         """Adds a keyword to this kaomoji entity."""
@@ -65,7 +66,9 @@ class Kaomoji:
         self.keywords = resume
 
     def from_line_entry(self, line_entry: str):
+        """Formats the database line entry as a Kaomoji instance."""
 
+        def remove_keyword(self, keyword) -> None:
         self.code = str()  # unicode of the kaomoji
         self.keywords = list()  # list of strings
 
@@ -74,7 +77,8 @@ class Kaomoji:
         self.code = code
         self.add_keywords_str(keywords_str)
 
-        self.hash = self._makehash(code)
+        #self.hash = self._makehash(code)
+        self._make_inits()
 
     def remove_keyword(self, keyword) -> None:
         """Removes a keyword to this kaomoji entity."""
@@ -100,7 +104,9 @@ class Kaomoji:
             if kw in self.keywords:
                 self.keywords.remove(kw)
 
-    def to_line_entry(self, register=True):
+    def to_line_entry(self, register=True) -> str:
+        """Formats the current Kaomoji instance as a database line entry."""
+
         code = self.code
         keywords_str = ", ".join([keyword.strip()
                                   for keyword in self.keywords])
@@ -112,7 +118,7 @@ class Kaomoji:
 
         return line_entry
 
-    def _makehash(self, code) -> int:
+    def _make_hash(self, code) -> int:
         """Gives a UUID for a given kaomoji, for comparison.
 
         It is the base10 of the sha256 digest of the kaomoji code:
@@ -131,6 +137,10 @@ class Kaomoji:
 
     def _make_shortcode(self, thehash=None) -> str:
         pass
+
+    def _make_inits(self):
+        self.hash = self._make_hash()
+        self.shortcode = self._make_shortcode()
 
     def __eq__(self, other):
         """ Implements the == (equality) operator to compare two Kaomoji
