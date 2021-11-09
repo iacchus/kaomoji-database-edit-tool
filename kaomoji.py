@@ -1,5 +1,7 @@
 from hashlib import sha256
 
+from typing import Union
+
 # let's make a notebook of exceptions here: we can use it later or not
 
 class KaomojiDBKaomojiExists(Exception):
@@ -41,28 +43,41 @@ class Kaomoji:
         # self.hash = self._makehash(code)
         self._make_inits()
 
-    def add_keyword(self, keyword) -> None:
+    def add_keyword(self, keyword: str) -> None:
         """Adds a keyword to this kaomoji entity."""
 
         if not keyword in self.keywords:
             self.keywords.append(keyword.strip())
 
-    def add_keywords_str(self, keywords_str: str) -> None:
+    def add_keywords(self, keywords: Union[str, list]) -> None:
 
-        if not isinstance(keywords_str, str):
-            raise TypeError("keywords_str is not a str")
-
-        keywords = [keyword.strip() for keyword in keywords_str.split(',')]
-        self.add_keywords_list(keywords_list=keywords)
-
-    def add_keywords_list(self, keywords_list: list[str]) -> None:
-
-        if not isinstance(keywords_list, list):
-            raise TypeError("keywords_list is not a list")
+        if isinstance(keywords, str):
+            keyword_list = [kw.strip() for kw in keywords.split(',')]
+        elif isinstance(keywords, list):
+            keyword_list = keywords
+        else:
+            raise TypeError("keywords is not str | list")
 
         resume = list(set(self.keywords + keywords_list))  # remove duplicates
 
         self.keywords = resume
+
+    # def add_keywords_str(self, keywords_str: str) -> None:
+    #
+    #     if not isinstance(keywords_str, str):
+    #         raise TypeError("keywords_str is not a str")
+    #
+    #     keywords = [keyword.strip() for keyword in keywords_str.split(',')]
+    #     self.add_keywords_list(keywords_list=keywords)
+    #
+    # def add_keywords_list(self, keywords_list: list[str]) -> None:
+    #
+    #     if not isinstance(keywords_list, list):
+    #         raise TypeError("keywords_list is not a list")
+    #
+    #     resume = list(set(self.keywords + keywords_list))  # remove duplicates
+    #
+    #     self.keywords = resume
 
     def from_line_entry(self, line_entry: str):
         """Formats the database line entry as a Kaomoji instance."""
@@ -78,30 +93,45 @@ class Kaomoji:
         #self.hash = self._makehash(code)
         self._make_inits()
 
-    def remove_keyword(self, keyword) -> None:
+    def remove_keyword(self, keyword: str) -> None:
         """Removes a keyword to this kaomoji entity."""
 
         if keyword in self.keywords:
             # self.keywords.remove(keyword.strip())
             self.keywords.remove(keyword.strip())
 
-    def remove_keywords_str(self, keywords_str: str) -> None:
+    def remove_keywords(self, keywords: Union[str, list]) -> None:
 
-        if not isinstance(keywords_str, str):
-            raise TypeError("keywords_str is not a str")
+        if isinstance(keywords, str):
+            keyword_list = [kw.strip() for kw in keywords.split(',')]
+        elif isinstance(keywords, list):
+            keyword_list = keywords
+        else:
+            raise TypeError("keywords is not str | list")
 
-        keywords = [keyword.strip() for keyword in keywords_str.split(',')]
-        self.add_keywords_list(keywords_list=keywords)
-
-    def remove_keywords_list(self, keywords_list: list[str]) -> None:
-
-        if not isinstance(keywords_list, list):
-            raise TypeError("keywords_list is not a list")
-
-        for keyword in keywords_list:
+        for keyword in keyword_list:
             kw = keyword.strip()
+
             if kw in self.keywords:
                 self.keywords.remove(kw)
+
+    # def remove_keywords_str(self, keywords_str: str) -> None:
+    #
+    #     if not isinstance(keywords_str, str):
+    #         raise TypeError("keywords_str is not a str")
+    #
+    #     keywords = [keyword.strip() for keyword in keywords_str.split(',')]
+    #     self.add_keywords_list(keywords_list=keywords)
+    #
+    # def remove_keywords_list(self, keywords_list: list[str]) -> None:
+    #
+    #     if not isinstance(keywords_list, list):
+    #         raise TypeError("keywords_list is not a list")
+    #
+    #     for keyword in keywords_list:
+    #         kw = keyword.strip()
+    #         if kw in self.keywords:
+    #             self.keywords.remove(kw)
 
     def to_line_entry(self, self_register=False) -> str:
         """Formats the current Kaomoji instance as a database line entry."""

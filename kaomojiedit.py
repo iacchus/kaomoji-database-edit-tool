@@ -187,19 +187,26 @@ def edit(database_filename, kaomoji_code, keywords_add, keywords_rm,
     if not kaomojidb:
         raise KaomojiToolNoDatabase
 
+    keywords_to_add = ",".join(keywords_add)  # adding will have preemptiness
+    keywords_to_rm = ", ".join(keywords_rm)
+
+    edit_kaomoji = kaomojidb.get_kaomoji_by_code(code=kaomoji_code)
+    edit_kaomoji.remove_keywords(keywords=keywords_to_rm)
+    edit_kaomoji.add_keywords(keywords=keywords_to_add)
+
     if isinstance(kaomoji_code, str) and kaomoji_code != "":
         new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
 
-    if not kaomojidb.kaomoji_exists(new_kaomoji):
+    if kaomojidb.kaomoji_exists(new_kaomoji):
         print("Backing up the database...")
         backup_db(db=kaomojidb)
 
-        print("Adding...")
-        print("kaomoji: ", new_kaomoji.code)
-        print("keywords: ", new_kaomoji.keywords)
-        kaomojidb.add_kaomoji(new_kaomoji)
+        print("Editing...")
+        print("kaomoji: ", edit_kaomoji.code)
+        print("keywords: ", edit_kaomoji.keywords)
+        kaomojidb.update_kaomoji(new_kaomoji)
     else:
-        raise KaomojiDBKaomojiExists
+        raise KaomojiDBKaomojiDoesntExist
 
     click.echo("Writing db {}".format(kaomojidb.filename))
     kaomojidb.write()
