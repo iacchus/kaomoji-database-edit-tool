@@ -76,7 +76,7 @@ class Kaomoji:
 class KaomojiDB:
     """Offers facilities to edit and check the DB file."""
 
-    def __init__(self, filename=None):
+    def __init__(self, filename=None) -> None:
         """
         Args:
             filename (str): The filename of the splatmoji database to be read.
@@ -94,7 +94,7 @@ class KaomojiDB:
             #self.load_file(filename=self.filename)
             self.load_file(filename=filename)
 
-    def load_file(self, filename):
+    def load_file(self, filename) -> None:
         """ Loads a db file reading it in the format usable by KaomojiDB class.
         """
 
@@ -122,7 +122,7 @@ class KaomojiDB:
 
         self.entry_num = len(self.kaomojis)
 
-    def write(self, filename=None):
+    def write(self, filename=None) -> None:
         """Writes a db file with the changes made."""
 
         if not filename:
@@ -139,7 +139,7 @@ class KaomojiDB:
         db_file.close()
         self.load_file(filename=filename)
 
-    def kaomoji_exists(self, other: Kaomoji):
+    def kaomoji_exists(self, other: Kaomoji) -> bool:
         """Checks if a kaomoji exists already in the database."""
 
         if other.code in self.kaomojis:
@@ -147,44 +147,44 @@ class KaomojiDB:
 
         return False
 
-    def add_kaomoji(self, kaomoji: Kaomoji):
+    def add_kaomoji(self, kaomoji: Kaomojia) -> Kaomoji:
         """Adds a Kaomoji to the database."""
 
         self.kaomojis.update({kaomoji.code: kaomoji})
 
         return self.kaomojis[kaomoji.code]
 
-    def get_kaomoji_by_code(self, code: str):
+    def get_kaomoji_by_code(self, code: str) -> Kaomoji:
         """Gets a Kaomoji with it's current keywords from the database."""
 
         return self.kaomojis[code]
 
-    def get_kaomoji_by_kaomoji(self, other: Kaomoji):
+    def get_kaomoji_by_kaomoji(self, other: Kaomoji) -> Kaomoji:
         """Gets a Kaomoji with it's current keywords from the database."""
 
         return self.kaomojis[other.code]
 
-    def get_kaomoji_by_hash(self, thehash: int):
+    def get_kaomoji_by_hash(self, thehash: int) -> Kaomoji:
         """Gets a Kaomoji with it's current keywords from the database."""
 
         for kaomoji in self.kaomojis.values():
             if thehash == kaomoji.hash:
                 return kaomoji
 
-    def remove_kaomoji(self, kaomoji: Kaomoji):
+    def remove_kaomoji(self, kaomoji: Kaomoji) -> None:
         """Removes a Kaomoji from the database."""
 
         if kaomoji.code in self.kaomojis:
             self.kaomojis.pop(kaomoji.code)
 
-    def update_kaomoji(self, kaomoji: Kaomoji):
+    def update_kaomoji(self, kaomoji: Kaomoji) -> Kaomoji:
         """Updates keywords to database."""
 
         self.kaomojis.update({kaomoji.code: kaomoji})
 
         return self.kaomojis[kaomoji.code]
 
-    def compare(self, other):
+    def compare(self, othera) -> dict[str: Kaomoji]:
         """Compares two KaomojiDB instances."""
 
         # Test `other` to see if is an instance os KaomojiDB; throw exception
