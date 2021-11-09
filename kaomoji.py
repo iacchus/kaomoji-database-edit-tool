@@ -31,7 +31,6 @@ class Kaomoji:
 
     def __init__(self, code=None, keywords=None):
 
-
         self.code = code if code else None
 
         if isinstance(keywords, str):
@@ -61,7 +60,7 @@ class Kaomoji:
         if not isinstance(keywords_list, list):
             raise TypeError("keywords_list is not a list")
 
-        resume = list(set(self.keywords + keywords_list))
+        resume = list(set(self.keywords + keywords_list))  # remove duplicates
 
         self.keywords = resume
 
@@ -77,7 +76,6 @@ class Kaomoji:
         self.code = code
         self.add_keywords_str(keywords_str)
 
-        #self.hash = self._makehash(code)
         self._make_inits()
 
     def remove_keyword(self, keyword) -> None:
@@ -104,7 +102,7 @@ class Kaomoji:
             if kw in self.keywords:
                 self.keywords.remove(kw)
 
-    def to_line_entry(self, register=True) -> str:
+    def to_line_entry(self, self_register=False) -> str:
         """Formats the current Kaomoji instance as a database line entry."""
 
         code = self.code
@@ -113,7 +111,7 @@ class Kaomoji:
         line_entry = "{code}\t{keywords_str}\n"\
             .format(code=code, keywords_str=keywords_str)
 
-        if register:
+        if self_register:
             self.line_entry = line_entry
 
         return line_entry
@@ -135,12 +133,13 @@ class Kaomoji:
 
         return the_hash
 
-    def _make_shortcode(self, thehash=None) -> str:
+    def _make_shortcode(self, thehash) -> str:
         pass
 
     def _make_inits(self):
-        self.hash = self._make_hash()
-        self.shortcode = self._make_shortcode()
+        if self.code:
+            self.hash = self._make_hash(code=self.code)
+            self.shortcode = self._make_shortcode(self.hash)
 
     def __eq__(self, other):
         """ Implements the == (equality) operator to compare two Kaomoji
