@@ -376,5 +376,33 @@ while True:
             print("Writing database...")
             interface.write()
 
-    if __name__ == "__main__":
-        pass
+@click.command()
+@click.option("--database", default="kaomoji.tsv", help="Kaomoji database")
+@click.option("--kaomoji",
+              prompt="Kaomoji to add",
+              help="Kaomoji database to add; use - to read from STDIN.")
+@click.option("--keywords",
+              prompt="Keywords, comma-separated",
+              help="Comma-separated list of keywords to add to this kaomoji.")
+def add(database, kaomoji=None, keywords=None):
+    pass
+
+
+@click.command()
+@click.option("--database", default="kaomoji.tsv", help="Kaomoji database")
+@click.option("--kaomoji",
+              prompt="Kaomoji to add",
+              help="Kaomoji database to add; use - to read from STDIN.")
+def rm(database, kaomoji=None):
+    pass
+
+@click.command()
+@click.option("--database", default="kaomoji.tsv", help="Kaomoji database")
+@click.option("--kaomoji",
+              prompt="Kaomoji to add",
+              help="Kaomoji database to add; use - to read from STDIN.")
+@click.option("--keywords",
+              prompt="Keywords (comma-separated)",
+              help="Comma-separated list of keywords.")
+def keyword(database, kaomoji=None, keywords=None):
+    pass
