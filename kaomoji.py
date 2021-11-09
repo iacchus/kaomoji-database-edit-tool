@@ -67,15 +67,15 @@ class Kaomoji:
     def from_line_entry(self, line_entry: str):
         """Formats the database line entry as a Kaomoji instance."""
 
-        def remove_keyword(self, keyword) -> None:
         self.code = str()  # unicode of the kaomoji
         self.keywords = list()  # list of strings
 
         line = line_entry.strip()
-        code, keywords_str = line_entry.split('\t', maxsplit=1)
+        code, *keywords_str = line_entry.split('\t', maxsplit=1)
         self.code = code
-        self.add_keywords_str(keywords_str)
+        self.add_keywords_str(keywords_str[0])
 
+        #self.hash = self._makehash(code)
         self._make_inits()
 
     def remove_keyword(self, keyword) -> None:
@@ -223,15 +223,14 @@ class KaomojiDB:
         if not filename:
             filename = self.filename
 
-        db_file = open(filename, "w")
+        database_file = open(filename, "w")
 
-        for code, kaomoji in self.kaomojis.items():
+        for kaomoji in self.kaomojis.values():
             #code = kaomoji.code
-            keywords_string = ", ".join(kaomoji.keywords)
-            db_line = "{0}\t{1}\n".format(code, keywords_string)
-            db_file.write(db_line)
+            database_entry_line = kaomoji.to_line_entry()
+            database_file.write(database_entry_line)
 
-        db_file.close()
+        database_file.close()
         self.load_file(filename=self.filename)
 
     def kaomoji_exists(self, kaomoji: Kaomoji) -> bool:
