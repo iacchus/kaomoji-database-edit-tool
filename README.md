@@ -14,7 +14,7 @@ Features:
 You can have a user configuration file at `~/.kaomojiedit`. The file has `toml`
 format. Current options:
 
-**`~/.kaomojiedit`**
+### `~/.kaomojiedit` config file
 ```
 database_filename = "emoticons.tsv"  # can be a path relative to current
                                      # directory or absolute; ~ is expanded
