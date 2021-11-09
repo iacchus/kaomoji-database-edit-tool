@@ -7,12 +7,24 @@ import random
 import time
 
 import click
+import toml
 
 from kaomoji import Kaomoji
 from kaomoji import KaomojiDB
 
 from kaomoji import KaomojiDBKaomojiExists
 
+USER_CONFIG_FILE = os.path.expanduser("~/.kaomojiedit")
+USER_CONFIG = dict()
+
+def get_user_config_file(filename=USER_CONFIG_FILE):
+
+    config_file = os.path.expanduser(filename)
+
+    if os.path.isfile(config_file):
+        return toml.load(config_file)
+
+    return {}
 
 def backup_db(db: KaomojiDB):
 
@@ -72,6 +84,11 @@ keywords_option = click.option(
     prompt="Keywords, comma-separated",
     help="Comma-separated list of keywords to change.")
 
+# config_filename_option = click.option(
+#     "-c", "--config", "config_filename",
+#     default=None,
+#     type=click.Path(exists=True, file_okay=True, dir_okay=False),
+#     help="Kaomoji database file name.")
 
 ###############################################################################
 # add                                                                         #
@@ -79,13 +96,22 @@ keywords_option = click.option(
 @cli.command()
 @database_filename_option
 @kaomoji_code_option
+@keywords_option
 def add(database_filename, kaomoji_code, keywords):
     """Adds the selected kaomoji from the selected database"""
 
-    kaomojidb = open_database(database_filename=database_filename)
+    if database_filename:
+        kaomojidb = open_database(database_filename=database_filename)
+    # elif config_filename:
+    #     print("no conf")
+    elif 'database_filename' in USER_CONFIG:
+        kaomojidb = open_database(database_filename=USER_CONFIG['database_filename'])
+    else:
+        print("else here!! DATABASE NEEDED")
+        exit(1)
 
-    if isinstance(str, kaomoji_code) and kaomoji_code != "":
-        new_kaomoji = Kaomoji(code=kaomoji_code)
+    if isinstance(kaomoji_code, str) and kaomoji_code != "":
+        new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
 
     if kaomojidb:
         backup_db(db=kaomojidb)
@@ -93,9 +119,15 @@ def add(database_filename, kaomoji_code, keywords):
         raise FileNotFoundError
 
     if not kaomojidb.kaomoji_exists(new_kaomoji):
-        kaomojidb.add_kaomoji(kaomoji)
+        print("Adding...")
+        print("kaomoji: ", new_kaomoji.code)
+        print("keywords: ", new_kaomoji.keywords)
+        kaomojidb.add_kaomoji(new_kaomoji)
     else:
         raise KaomojiDBKaomojiExists
+
+    click.echo("Writing db {}".format(kaomojidb.filename))
+    kaomojidb.write()
 
 
 
@@ -155,4 +187,7 @@ def kwrm(database_filename, kaomoji_code, keywords):
     kaomojidb = open_database(database_filename=database_filename)
 
 if __name__ == "__main__":
+
+    USER_CONFIG = get_user_config_file(filename=USER_CONFIG_FILE)
+
     cli()

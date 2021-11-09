@@ -27,6 +27,12 @@ class Kaomoji:
         if not keyword in self.keywords:
             self.keywords.append(keyword.strip())
 
+    def add_keywords_str(self):
+        pass
+
+    def add_keywords_list(self):
+        pass
+
     def remove_keyword(self, keyword):
         """Removes a keyword to this kaomoji entity."""
 
