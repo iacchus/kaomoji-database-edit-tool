@@ -31,6 +31,12 @@ def open_database(database_filename):
 
 @click.group()
 def cli():
+    """Toolchain to edit kaomoji database files.
+
+    Contribute at:
+
+    https://github.com/iacchus/kaomoji-database-edit-tool/
+    """
     pass
 
 keywords_add_option = click.option(

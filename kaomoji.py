@@ -147,7 +147,7 @@ class KaomojiDB:
 
         return False
 
-    def add_kaomoji(self, kaomoji: Kaomojia) -> Kaomoji:
+    def add_kaomoji(self, kaomoji: Kaomoji) -> Kaomoji:
         """Adds a Kaomoji to the database."""
 
         self.kaomojis.update({kaomoji.code: kaomoji})
