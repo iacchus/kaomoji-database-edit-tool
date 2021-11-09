@@ -11,6 +11,7 @@ import click
 from kaomoji import Kaomoji
 from kaomoji import KaomojiDB
 
+
 def backup_db(db: KaomojiDB):
 
     timestamp = time.time()
@@ -19,11 +20,8 @@ def backup_db(db: KaomojiDB):
     backup = KaomojiDB(filename=db.filename)
     backup.write(filename=backup_filename)
 
-# KAOMOJIDB = KaomojiDB()
 
 def open_database(database_filename):
-
-    #global KAOMOJIDB
 
     if os.path.isfile(database_filename):
         return KaomojiDB(filename=database_filename)
@@ -36,20 +34,30 @@ def cli():
     pass
 
 
+database_filename_option = click.option(
+    "-f", "--database", "database_filename",
+    default=None,
+    help="Kaomoji database")
+
+kaomoji_option = click.option(
+    "-k", "--kaomoji", "kaomoji",
+    default=None,
+    prompt="Kaomoji to add",
+    help="Kaomoji; use - to read from STDIN.")
+
+keywords_option = click.option(
+    "-w", "--keywords", "keywords",
+    default=None,
+    prompt="Keywords, comma-separated",
+    help="Comma-separated list of keywords to change.")
+
 ###############################################################################
 # add                                                                         #
 ###############################################################################
 
 @cli.command()
-@click.option("-f", "--database", "database_filename",
-              default="kaomoji.tsv",
-              help="Kaomoji database")
-@click.option("-k", "--kaomoji", "kaomoji",
-              prompt="Kaomoji to add",
-              help="Kaomoji database to add; use - to read from STDIN.")
-@click.option("--keywords",
-              prompt="Keywords, comma-separated",
-              help="Comma-separated list of keywords to add to this kaomoji.")
+@database_filename_option
+@kaomoji_option
 def add(database_filename, kaomoji, keywords):
     """Adds the selected kaomoji from the selected database"""
 
@@ -61,13 +69,9 @@ def add(database_filename, kaomoji, keywords):
 ###############################################################################
 
 @cli.command()
-@click.option("-f", "--database", "database_filename",
-              default="kaomoji.tsv",
-              help="Kaomoji database")
-@click.option("-k", "--kaomoji", "kaomoji",
-              prompt="Kaomoji to add",
-              help="Kaomoji database to add; use - to read from STDIN.")
-def rm(database, kaomoji=None):
+@database_filename_option
+@kaomoji_option
+def rm(database_filename, kaomoji=None):
     """Removes the selected kaomoji from the selected database"""
 
     kaomojidb = open_database(database_filename=database_filename)
@@ -78,15 +82,9 @@ def rm(database, kaomoji=None):
 ###############################################################################
 
 @cli.command()
-@click.option("-f", "--database", "database_filename",
-              default="kaomoji.tsv",
-              help="Kaomoji database")
-@click.option("-k", "--kaomoji", "kaomoji",
-              prompt="Kaomoji to add",
-              help="Kaomoji database to add; use - to read from STDIN.")
-@click.option("--keywords",
-              prompt="Keywords (comma-separated)",
-              help="Comma-separated list of keywords.")
+@database_filename_option
+@kaomoji_option
+@keywords_option
 def kwadd(database_filename, kaomoji, keywords):
     """Add a comma-separated list of keywords to the selected kaomoji at the
     selected database.
@@ -100,15 +98,9 @@ def kwadd(database_filename, kaomoji, keywords):
 ###############################################################################
 
 @cli.command()
-@click.option("-f", "--database", "database_filename",
-              default="kaomoji.tsv",
-              help="Kaomoji database")
-@click.option("-k", "--kaomoji", "kaomoji",
-              prompt="Kaomoji to add",
-              help="Kaomoji database to add; use - to read from STDIN.")
-@click.option("-w", "--keywords", "keywords",
-              prompt="Keywords (comma-separated)",
-              help="Comma-separated list of keywords.")
+@database_filename_option
+@kaomoji_option
+@keywords_option
 def kwrm(database_filename, kaomoji, keywords):
     """Removes a comma-separated list of keywords to the selected kaomoji at
     the selected database.
