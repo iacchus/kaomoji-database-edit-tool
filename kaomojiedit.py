@@ -14,6 +14,10 @@ from kaomoji import KaomojiDB
 
 from kaomoji import KaomojiDBKaomojiExists
 
+DEFAULT_CONFIG = {
+    'database_filename': './emoticons.tsv',
+}
+
 USER_CONFIG_FILE = os.path.expanduser("~/.kaomojiedit")
 USER_CONFIG = dict()
 
@@ -58,6 +62,7 @@ keywords_add_option = click.option(
     default=None,
     multiple=True,
     #prompt="Keywords to add, comma-separated",  # this should go inside function
+    type=str,
     help = "Comma-separated or option-separated list of keywords to add.")
 
 keywords_remove_option = click.option(
@@ -65,30 +70,34 @@ keywords_remove_option = click.option(
     default=None,
     multiple=True,
     #prompt="Keywords to remove, comma-separated",  # this should go inside function
+    type=str,
     help="Comma-separated or option-separated list of keywords to remove.")
 
 database_filename_option = click.option(
     "-f", "--database", "database_filename",
     default=None,
+    type=str,
     help="Kaomoji database file name.")
 
 kaomoji_code_option = click.option(
     "-k", "--kaomoji", "kaomoji_code",
     default=None,
     prompt="Kaomoji",
+    type=str,
     help="Kaomoji; use - to read from STDIN.")
 
 keywords_option = click.option(
     "-w", "--keywords", "keywords",
     default=None,
     prompt="Keywords, comma-separated",
+    type=str,
     help="Comma-separated list of keywords to change.")
 
-# config_filename_option = click.option(
-#     "-c", "--config", "config_filename",
-#     default=None,
-#     type=click.Path(exists=True, file_okay=True, dir_okay=False),
-#     help="Kaomoji database file name.")
+config_filename_option = click.option(
+    "-c", "--config", "config_filename",
+    default=None,
+    type=click.Path(exists=True, file_okay=True, dir_okay=False),
+    help="Kaomoji database file name.")
 
 ###############################################################################
 # add                                                                         #
@@ -97,14 +106,17 @@ keywords_option = click.option(
 @database_filename_option
 @kaomoji_code_option
 @keywords_option
-def add(database_filename, kaomoji_code, keywords):
-    """Adds the selected kaomoji from the selected database"""
+@config_filename_option
+def add(database_filename, kaomoji_code, keywords, config_filename):
+    """Adds the selected kaomoji to the selected database"""
+
+    if config_filename and os.path.isfile(config_filename):
+        user_config = get_user_config_file(filename=USER_CONFIG_FILE)
+        CONFIG.update(user_config)
 
     if database_filename:
         kaomojidb = open_database(database_filename=database_filename)
-    # elif config_filename:
-    #     print("no conf")
-    elif 'database_filename' in USER_CONFIG:
+    elif 'database_filename' in CONFIG:
         kaomojidb = open_database(database_filename=USER_CONFIG['database_filename'])
     else:
         print("else here!! DATABASE NEEDED")
@@ -188,6 +200,10 @@ def kwrm(database_filename, kaomoji_code, keywords):
 
 if __name__ == "__main__":
 
-    USER_CONFIG = get_user_config_file(filename=USER_CONFIG_FILE)
+    CONFIG = DEFAULT_CONFIG  # initialize it with defaults
+
+    if os.path.isfile(USER_CONFIG_FILE):
+        USER_CONFIG = get_user_config_file(filename=USER_CONFIG_FILE)
+        CONFIG.update(USER_CONFIG)
 
     cli()

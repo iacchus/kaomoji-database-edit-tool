@@ -16,7 +16,7 @@ Features:
 ```
 Usage: python -m kaomojiedit add [OPTIONS]
 
-  Adds the selected kaomoji from the selected database
+  Adds the selected kaomoji to the selected database
 
 Options:
   -f, --database TEXT  Kaomoji database file name.
