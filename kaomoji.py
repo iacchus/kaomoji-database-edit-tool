@@ -326,25 +326,52 @@ class KaomojiDB:
 
         return self.kaomojis[kaomoji.code]
 
-    def compare(self, other) -> dict[str: Kaomoji]:
+    def compare(self, other, diff_type="additional") -> dict[str: Kaomoji]:
         """Compares two KaomojiDB instances."""
 
         if not isinstance(other, KaomojiDB):
             raise TypeError("other is not a KaomojiDB")
 
-        differences_dict = dict()
+        other_extra_dict = dict()
+        self_extra_dict = dict()
+        difference_dict = dict()
 
+        # other_extra - other has and self doesn't
         for kaomoji_code in other.kaomojis:
             if kaomoji_code not in self.kaomojis:
-                different = other.kaomojis[kaomoji_code]
-                differences_dict.update({kaomoji_code: different})
+                other_extra_kaomoji = other.kaomojis[kaomoji_code]
+                other_extra_dict.update({kaomoji_code: different})
 
             else:
                 for keyword in other.kaomojis[kaomoji_code].keywords:
                     if not keyword in self.kaomojis[kaomoji_code].keywords:
-                        if not kaomoji_code in differences_dict:
-                            different = Kaomoji(code=kaomoji_code, keywords=list())
-                            differences_dict.update({kaomoji_code: different})
-                        differences_dict[kaomoji_code].keywords.append(keyword)
+                        if not kaomoji_code in other_extra_dict:
+                            other_extra_kaomoji = Kaomoji(code=kaomoji_code, keywords=list())
+                            other_extra_dict.update({kaomoji_code: other_extra_kaomoji})
+                        other_extra_dict[kaomoji_code].keywords.append(keyword)
 
-        return differences_dict
+        # self_extra - self has and other doesn't
+        for kaomoji_code in self.kaomojis:
+            if kaomoji_code not in other.kaomojis:
+                self_extra_kaomoji = self.kaomojis[kaomoji_code]
+                self_extra_dict.update({kaomoji_code: self_extra_kaomoji})
+
+            else:
+                for keyword in self.kaomojis[kaomoji_code].keywords:
+                    if not keyword in other.kaomojis[kaomoji_code].keywords:
+                        if not kaomoji_code in self_extra_dict:
+                            self_extra_kaomoji = Kaomoji(code=kaomoji_code, keywords=list())
+                            self_extra_dict.update({kaomoji_code: self_extra_kaomoji})
+                        self_extra_dict[kaomoji_code].keywords.append(keyword)
+
+        # difference between both
+        difference_dict.update(other_extra_dict)
+        difference_dict.update(self_extra_dict)
+
+        diff_types = {
+            "additional": other_extra_dict,
+            "difference": difference_dict,
+            "exclusive": self_extra_dict,
+        }
+
+        return diff_types[diff_type]

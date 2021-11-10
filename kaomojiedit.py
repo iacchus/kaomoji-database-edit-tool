@@ -86,8 +86,7 @@ database_filename_option = click.option(
 
 kaomoji_code_option = click.option(
     "-k", "--kaomoji", "kaomoji_code",
-    #default=None,
-    default=click.get_text_stream('stdin').read().strip(),
+    default=None,
     #prompt="Kaomoji",
     type=str,
     help="Kaomoji; use - to read from STDIN.")
@@ -105,6 +104,19 @@ config_filename_option = click.option(
     type=click.Path(exists=True, file_okay=True, dir_okay=False),
     help="Kaomoji database file name.")
 
+other_database_filename_option = click.option(
+    "-o", "--other-database", "other_database_filename",
+    default=None,
+    type=str,
+    help="Kaomoji database file name to compare with the default.")
+
+diff_type_option = click.option(
+    "-t", "--diff-type", "diff_type",
+    default="additional",
+    #prompt="Keywords, comma-separated",
+    type=click.Choice(["additional", "difference", "exclusive",
+                       "intersection"], case_sensitive=False),
+    help="Comma-separated list of keywords to change.")
 
 @click.group()
 def cli():
@@ -311,7 +323,7 @@ def kwadd(database_filename, kaomoji_code, keywords, config_filename):
 @kaomoji_code_option
 @config_filename_option
 @keywords_option
-def kwadd(database_filename, kaomoji_code, keywords, config_filename):
+def kwrm(database_filename, kaomoji_code, keywords, config_filename):
     """Remove keywords to the selected kaomoji."""
 
     if config_filename and os.path.isfile(config_filename):
@@ -348,6 +360,37 @@ def kwadd(database_filename, kaomoji_code, keywords, config_filename):
     print("Writing db ", kaomojidb.filename)
     kaomojidb.write()
 
+
+###############################################################################
+# diff                                                                        #
+###############################################################################
+@cli.command()
+@database_filename_option
+@other_database_filename_option
+@diff_type_option
+@config_filename_option
+def diff(database_filename, other_database_filename, diff_type,
+         config_filename):
+    """Compare two databases and logs the difference between them."""
+
+    if config_filename and os.path.isfile(config_filename):
+        user_config = get_user_config_file(filename=USER_CONFIG_FILE)
+        CONFIG.update(user_config)
+
+    if database_filename:
+        CONFIG.update({'database_filename': database_filename})
+
+    db_filename = CONFIG['database_filename']
+    kaomoji_db = open_database(database_filename=db_filename)
+    other_db = open_database(database_filename=other_database_filename)
+
+    if not kaomoji_db or not other_db:
+        raise KaomojiToolNoDatabase
+
+    diff_dict = kaomoji_db.compare(other=other_db, diff_type=diff_type)
+    print(diff_dict)
+
+    # TODO: TAKE SHA256, FORMAT FOR KaomojiDB, WRITE
 
 if __name__ == "__main__":
 
