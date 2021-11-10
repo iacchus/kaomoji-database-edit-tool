@@ -187,15 +187,12 @@ def edit(database_filename, kaomoji_code, keywords_add, keywords_remove,
     if not kaomojidb:
         raise KaomojiToolNoDatabase
 
-    keywords_to_add = ",".join(keywords_add).split('\t')  # adding will have preemptiness
-    keywords_to_remove = ",".join(keywords_remove).split('\t')
+    keywords_to_add = ",".join(keywords_add)  # adding will have preemptiness
+    keywords_to_remove = ",".join(keywords_remove)
 
     print(keywords_to_remove)
     if not kaomojidb.get_kaomoji(by_entity=kaomoji_code):
         print("New kaomoji! Adding it do database...")
-        # new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
-        # new_kaomoji = Kaomoji(code=kaomoji_code)
-        # kaomojidb.add_kaomoji(kaomoji=new_kaomoji)
         new_kaomoji = kaomojidb.add_kaomoji(Kaomoji(code=kaomoji_code))
     else:
         print("Kaomoji already exists! Removing keywords from it...")
