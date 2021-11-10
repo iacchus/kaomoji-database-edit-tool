@@ -168,7 +168,7 @@ def add(database_filename, kaomoji_code, keywords, config_filename):
 @keywords_add_option
 @keywords_remove_option
 @config_filename_option
-def edit(database_filename, kaomoji_code, keywords_add, keywords_rm,
+def edit(database_filename, kaomoji_code, keywords_add, keywords_remove,
          config_filename):
     """Edits the selected kaomoji to the selected database, adding or removing
     keywords.
@@ -187,21 +187,24 @@ def edit(database_filename, kaomoji_code, keywords_add, keywords_rm,
     if not kaomojidb:
         raise KaomojiToolNoDatabase
 
-    keywords_to_add = ",".join(keywords_add)  # adding will have preemptiness
-    keywords_to_rm = ",".join(keywords_rm)
+    keywords_to_add = ",".join(keywords_add).split('\t')  # adding will have preemptiness
+    keywords_to_remove = ",".join(keywords_remove).split('\t')
 
+    print(keywords_to_remove)
     if not kaomojidb.get_kaomoji(by_entity=kaomoji_code):
         print("New kaomoji! Adding it do database...")
         # new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
-        new_kaomoji = Kaomoji(code=kaomoji_code)
-        kaomojidb.add_kaomoji(kaomoji=new_kaomoji)
+        # new_kaomoji = Kaomoji(code=kaomoji_code)
+        # kaomojidb.add_kaomoji(kaomoji=new_kaomoji)
+        new_kaomoji = kaomojidb.add_kaomoji(Kaomoji(code=kaomoji_code))
     else:
         print("Kaomoji already exists! Removing keywords from it...")
 
     edit_kaomoji = kaomojidb.get_kaomoji(by_entity=kaomoji_code)
-    if not new_kaomoji:
-        edit_kaomoji.remove_keywords(keywords=keywords_to_rm)
-    edit_kaomoji.add_keywords(keywords=keywords_to_add)
+    if keywords_to_remove:
+        edit_kaomoji.remove_keywords(keywords=keywords_to_remove)
+    if keywords_to_add:
+        edit_kaomoji.add_keywords(keywords=keywords_to_add)
 
     print("Backing up the database...")
     backup_db(db=kaomojidb)

@@ -31,53 +31,40 @@ class Kaomoji:
     code: str = str()  # unicode of the kaomoji
     keywords: list[str] = list()  # list of strings
 
-    def __init__(self, code=None, keywords=None):
+    def __init__(self, code=None, keywords=None, line_entry=None):
 
-        self.code = code if code else None
+        if line_entry:
+            self.from_line_entry(line_entry=line_entry)
 
-        if isinstance(keywords, str):
-            self.add_keywords_str(keywords)
-        elif isinstance(keywords, list):
-            self.add_keywords_list(keywords)
+        elif code:
+            self.code = code
+            self.add_keywords(keywords)
 
-        # self.hash = self._makehash(code)
         self._make_inits()
 
     def add_keyword(self, keyword: str) -> None:
         """Adds a keyword to this kaomoji entity."""
 
-        if not keyword in self.keywords:
+        if keyword and not keyword in self.keywords:
             self.keywords.append(keyword.strip())
 
-    def add_keywords(self, keywords: Union[str, list]) -> None:
+    def add_keywords(self, keywords: Union[str, list, None]= None) -> None:
 
-        if isinstance(keywords, str):
+        if not keywords:
+            keyword_list = []
+        elif isinstance(keywords, str):
             keyword_list = [kw.strip() for kw in keywords.split(',')]
         elif isinstance(keywords, list):
             keyword_list = keywords
         else:
             raise TypeError("keywords is not str | list")
 
-        resume = list(set(self.keywords + keywords_list))  # remove duplicates
+        resume = list(set(self.keywords + keyword_list))  # remove duplicates
+
+        while '' in resume:
+            resume.remove('')
 
         self.keywords = resume
-
-    # def add_keywords_str(self, keywords_str: str) -> None:
-    #
-    #     if not isinstance(keywords_str, str):
-    #         raise TypeError("keywords_str is not a str")
-    #
-    #     keywords = [keyword.strip() for keyword in keywords_str.split(',')]
-    #     self.add_keywords_list(keywords_list=keywords)
-    #
-    # def add_keywords_list(self, keywords_list: list[str]) -> None:
-    #
-    #     if not isinstance(keywords_list, list):
-    #         raise TypeError("keywords_list is not a list")
-    #
-    #     resume = list(set(self.keywords + keywords_list))  # remove duplicates
-    #
-    #     self.keywords = resume
 
     def from_line_entry(self, line_entry: str):
         """Formats the database line entry as a Kaomoji instance."""
@@ -86,12 +73,14 @@ class Kaomoji:
         self.keywords = list()  # list of strings
 
         line = line_entry.strip()
-        code, *keywords_str = line_entry.split('\t', maxsplit=1)
+        code, *keywords_str = line.split('\t', maxsplit=1)
         self.code = code
-        self.add_keywords_str(keywords_str[0])
+        self.add_keywords(keywords_str)
 
-        #self.hash = self._makehash(code)
         self._make_inits()
+
+        return self
+
 
     def remove_keyword(self, keyword: str) -> None:
         """Removes a keyword to this kaomoji entity."""
@@ -100,9 +89,11 @@ class Kaomoji:
             # self.keywords.remove(keyword.strip())
             self.keywords.remove(keyword.strip())
 
-    def remove_keywords(self, keywords: Union[str, list]) -> None:
+    def remove_keywords(self, keywords: Union[str, list, None]) -> None:
 
-        if isinstance(keywords, str):
+        if not keywords:
+            keyword_list = []
+        elif isinstance(keywords, str):
             keyword_list = [kw.strip() for kw in keywords.split(',')]
         elif isinstance(keywords, list):
             keyword_list = keywords
@@ -114,24 +105,6 @@ class Kaomoji:
 
             if kw in self.keywords:
                 self.keywords.remove(kw)
-
-    # def remove_keywords_str(self, keywords_str: str) -> None:
-    #
-    #     if not isinstance(keywords_str, str):
-    #         raise TypeError("keywords_str is not a str")
-    #
-    #     keywords = [keyword.strip() for keyword in keywords_str.split(',')]
-    #     self.add_keywords_list(keywords_list=keywords)
-    #
-    # def remove_keywords_list(self, keywords_list: list[str]) -> None:
-    #
-    #     if not isinstance(keywords_list, list):
-    #         raise TypeError("keywords_list is not a list")
-    #
-    #     for keyword in keywords_list:
-    #         kw = keyword.strip()
-    #         if kw in self.keywords:
-    #             self.keywords.remove(kw)
 
     def to_line_entry(self, self_register=False) -> str:
         """Formats the current Kaomoji instance as a database line entry."""
@@ -173,7 +146,7 @@ class Kaomoji:
     def _make_inits(self):
         if self.code:
             self.hash = self._make_hash(code=self.code)
-            self.shortcode = self._make_shortcode(self.hash)
+            #self.shortcode = self._make_shortcode(self.hash)
 
     def _hash_to_shortcode(self):
         pass
@@ -224,9 +197,6 @@ class KaomojiDB:
                                     '~_o': ['keywordd', 'keyy2', 'etc']})
         """
         if filename:
-
-            #self.filename = filename
-            #self.load_file(filename=self.filename)
             self.load_file(filename=filename)
 
     def load_file(self, filename: str) -> None:
@@ -244,16 +214,18 @@ class KaomojiDB:
 
         for line in lines:
 
-            processed_line = line.strip().split("\t", maxsplit=1)
-            if len(processed_line) == 2:
-                code, keywords = processed_line
-            else:
-                code, *throwaway = processed_line
-                keywords = None
+            # processed_line = line.strip().split("\t", maxsplit=1)
+            # if len(processed_line) == 2:
+            #     code, keywords = processed_line
+            # else:
+            #     code, *throwaway = processed_line
+            #     keywords = None
+            #
+            # kaomoji = Kaomoji(code=code, keywords=keywords)
+            # kaomoji = Kaomoji().from_line_entry(line_entry=line)
+            kaomoji = Kaomoji(line_entry=line)
 
-            kaomoji = Kaomoji(code=code, keywords=keywords)
-
-            self.kaomojis.update({code: kaomoji})
+            self.kaomojis.update({kaomoji.code: kaomoji})
 
         self.entry_num = len(self.kaomojis)
 
