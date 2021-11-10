@@ -289,6 +289,32 @@ class KaomojiDB:
 
         return self.kaomojis[kaomoji.code]
 
+    def get_kaomoji(self, by_entity: Union[Kaomoji, str, int]) ->\
+                                                        Union[Kaomoji, None]:
+
+        # Kaomoji entity
+        if isinstance(by_entity, Kaomoji):
+
+            if by_entity.code in self.kaomojis:
+                return self.kaomojis[by_entity.code]
+
+        # str, unicode
+        elif isinstance(by_entity, str):
+
+            if by_entity in self.kaomojis:
+                return self.kaomojis[by_entity]
+
+        # int, numeric hash
+        elif isinstance(by_entity, int):
+
+            for kaomoji in self.kaomojis.values():
+                if the_hash == kaomoji.hash:
+                    return kaomoji
+        else:
+            raise TypeError("by_entity is not Kaomoji | str | int")
+
+        return None
+
     def get_kaomoji_by_code(self, code: str) -> Union[Kaomoji, None]:
         """Gets a Kaomoji with it's current keywords from the database."""
 
