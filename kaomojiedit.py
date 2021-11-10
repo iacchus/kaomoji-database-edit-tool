@@ -156,7 +156,7 @@ def add(database_filename, kaomoji_code, keywords, config_filename):
     else:
         raise KaomojiDBKaomojiExists
 
-    print("Writing db {}".format(kaomojidb.filename))
+    print("Writing db ", kaomojidb.filename)
     kaomojidb.write()
 
 
@@ -209,7 +209,7 @@ def edit(database_filename, kaomoji_code, keywords_add, keywords_rm,
     else:
         raise KaomojiDBKaomojiDoesntExist
 
-    print("Writing db {}".format(kaomojidb.filename))
+    print("Writing db ", kaomojidb.filename)
     kaomojidb.write()
 
 
@@ -250,7 +250,7 @@ def rm(database_filename, kaomoji_code, config_filename):
     else:
         raise KaomojiDBKaomojiDoesntExist
 
-    print("Writing db {}".format(kaomojidb.filename))
+    print("Writing db ", kaomojidb.filename)
     kaomojidb.write()
 
 
@@ -296,7 +296,7 @@ def kwadd(database_filename, kaomoji_code, keywords, config_filename):
     print("keywords: ", edit_kaomoji.keywords)
     kaomojidb.update_kaomoji(edit_kaomoji)
 
-    print("Writing db {}".format(kaomojidb.filename))
+    print("Writing db ", kaomojidb.filename)
     kaomojidb.write()
 
 
@@ -324,7 +324,6 @@ def kwadd(database_filename, kaomoji_code, keywords, config_filename):
     if not kaomojidb:
         raise KaomojiToolNoDatabase
 
-
     if not kaomojidb.get_kaomoji_by_code(code=kaomoji_code)
         print("New kaomoji! Adding it do database...")
         new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
@@ -333,7 +332,7 @@ def kwadd(database_filename, kaomoji_code, keywords, config_filename):
         print("Kaomoji already exists! Adding keywords to it...")
 
     edit_kaomoji = kaomojidb.get_kaomoji_by_code(code=kaomoji_code)
-    edit_kaomoji.add_keywords(keywords=keywords)
+    edit_kaomoji.remove_keywords(keywords=keywords)
 
     print("Backing up the database...")
     backup_db(db=kaomojidb)
@@ -343,7 +342,7 @@ def kwadd(database_filename, kaomoji_code, keywords, config_filename):
     print("keywords: ", edit_kaomoji.keywords)
     kaomojidb.update_kaomoji(edit_kaomoji)
 
-    print("Writing db {}".format(kaomojidb.filename))
+    print("Writing db ", kaomojidb.filename)
     kaomojidb.write()
 
 
