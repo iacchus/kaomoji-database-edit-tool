@@ -73,13 +73,10 @@ class Kaomoji:
         self.keywords = list()  # list of strings
 
         line = line_entry.strip()
-        if "\t" in line:
-            code, keywords_str = line.split('\t', maxsplit=1)
-            self.add_keywords(keywords_str)
-        else:
-            code = line
 
+        code, *keywords_str = line.split('\t', maxsplit=1)
         self.code = code
+        self.add_keywords(*keywords_str)
 
         self._make_inits()
 
