@@ -25,6 +25,8 @@ class KaomojiKaomojiKeywordDoesntExist(Exception):
         super().__init__(self.description, *args, **kwargs)
 
 
+KaomojiDB: type
+
 class Kaomoji:
     """Represents a Kaomoji entity."""
 
@@ -229,7 +231,7 @@ class KaomojiDB:
             #self.load_file(filename=self.filename)
             self.load_file(filename=filename)
 
-    def load_file(self, filename) -> None:
+    def load_file(self, filename: str) -> None:
         """ Loads a db file reading it in the format usable by KaomojiDB class.
         """
 
@@ -257,7 +259,7 @@ class KaomojiDB:
 
         self.entry_num = len(self.kaomojis)
 
-    def write(self, filename=None) -> None:
+    def write(self, filename: str=None) -> None:
         """Writes a db file with the changes made."""
 
         if not filename:
@@ -287,22 +289,30 @@ class KaomojiDB:
 
         return self.kaomojis[kaomoji.code]
 
-    def get_kaomoji_by_code(self, code: str) -> Kaomoji:
+    def get_kaomoji_by_code(self, code: str) -> Union[Kaomoji, None]:
         """Gets a Kaomoji with it's current keywords from the database."""
 
-        return self.kaomojis[code]
+        if code in self.kaomojis:
+            return self.kaomojis[code]
 
-    def get_kaomoji_by_kaomoji(self, other: Kaomoji) -> Kaomoji:
+        return None
+
+    def get_kaomoji_by_kaomoji(self, other: Kaomoji) -> Union[Kaomoji, None]:
         """Gets a Kaomoji with it's current keywords from the database."""
 
-        return self.kaomojis[other.code]
+        if other.code in self.kaomojis:
+            return self.kaomojis[other.code]
 
-    def get_kaomoji_by_hash(self, thehash: int) -> Kaomoji:
+        return None
+
+    def get_kaomoji_by_hash(self, the_hash: int) -> Union[Kaomoji, None]:
         """Gets a Kaomoji with it's current keywords from the database."""
 
         for kaomoji in self.kaomojis.values():
-            if thehash == kaomoji.hash:
+            if the_hash == kaomoji.hash:
                 return kaomoji
+
+        return None
 
     def remove_kaomoji(self, kaomoji: Kaomoji) -> None:
         """Removes a Kaomoji from the database."""
@@ -317,7 +327,7 @@ class KaomojiDB:
 
         return self.kaomojis[kaomoji.code]
 
-    def compare(self, other) -> dict[str: Kaomoji]:
+    def compare(self, other: KaomojiDB) -> dict[str: Kaomoji]:
         """Compares two KaomojiDB instances."""
 
         if not isinstance(other, KaomojiDB):

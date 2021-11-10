@@ -156,7 +156,7 @@ def add(database_filename, kaomoji_code, keywords, config_filename):
     else:
         raise KaomojiDBKaomojiExists
 
-    click.echo("Writing db {}".format(kaomojidb.filename))
+    print("Writing db {}".format(kaomojidb.filename))
     kaomojidb.write()
 
 
@@ -195,8 +195,8 @@ def edit(database_filename, kaomoji_code, keywords_add, keywords_rm,
     edit_kaomoji.remove_keywords(keywords=keywords_to_rm)
     edit_kaomoji.add_keywords(keywords=keywords_to_add)
 
-    if isinstance(kaomoji_code, str) and kaomoji_code != "":
-        new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
+    # if isinstance(kaomoji_code, str) and kaomoji_code != "":
+    #     new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
 
     if kaomojidb.kaomoji_exists(new_kaomoji):
         print("Backing up the database...")
@@ -209,7 +209,7 @@ def edit(database_filename, kaomoji_code, keywords_add, keywords_rm,
     else:
         raise KaomojiDBKaomojiDoesntExist
 
-    click.echo("Writing db {}".format(kaomojidb.filename))
+    print("Writing db {}".format(kaomojidb.filename))
     kaomojidb.write()
 
 
@@ -250,7 +250,7 @@ def rm(database_filename, kaomoji_code, config_filename):
     else:
         raise KaomojiDBKaomojiDoesntExist
 
-    click.echo("Writing db {}".format(kaomojidb.filename))
+    print("Writing db {}".format(kaomojidb.filename))
     kaomojidb.write()
 
 
@@ -260,13 +260,44 @@ def rm(database_filename, kaomoji_code, config_filename):
 @cli.command()
 @database_filename_option
 @kaomoji_code_option
+@config_filename_option
 @keywords_option
-def kwadd(database_filename, kaomoji_code, keywords):
-    """Adds a comma-separated list of keywords to the selected kaomoji at the
-    selected database.
-    """
+def kwadd(database_filename, kaomoji_code, keywords, config_filename):
+    """Add keywords to the selected kaomoji."""
 
-    kaomojidb = open_database(database_filename=database_filename)
+    if config_filename and os.path.isfile(config_filename):
+        user_config = get_user_config_file(filename=USER_CONFIG_FILE)
+        CONFIG.update(user_config)
+
+    if database_filename:
+        CONFIG.update({'database_filename': database_filename})
+
+    db_filename = CONFIG['database_filename']
+    kaomojidb = open_database(database_filename=db_filename)
+
+    if not kaomojidb:
+        raise KaomojiToolNoDatabase
+
+    if not kaomojidb.get_kaomoji_by_code(code=kaomoji_code)
+        print("New kaomoji! Adding it do database...")
+        new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
+        kaomojidb.add_kaomoji(kaomoji=new_kaomoji)
+    else:
+        print("Kaomoji already exists! Removing keywords from it...")
+
+    edit_kaomoji = kaomojidb.get_kaomoji_by_code(code=kaomoji_code)
+    edit_kaomoji.add_keywords(keywords=keywords)
+
+    print("Backing up the database...")
+    backup_db(db=kaomojidb)
+
+    print("Removing keywords...")
+    print("kaomoji: ", edit_kaomoji.code)
+    print("keywords: ", edit_kaomoji.keywords)
+    kaomojidb.update_kaomoji(edit_kaomoji)
+
+    print("Writing db {}".format(kaomojidb.filename))
+    kaomojidb.write()
 
 
 ###############################################################################
@@ -275,13 +306,45 @@ def kwadd(database_filename, kaomoji_code, keywords):
 @cli.command()
 @database_filename_option
 @kaomoji_code_option
+@config_filename_option
 @keywords_option
-def kwrm(database_filename, kaomoji_code, keywords):
-    """Removes a comma-separated list of keywords to the selected kaomoji at
-    the selected database.
-    """
+def kwadd(database_filename, kaomoji_code, keywords, config_filename):
+    """Remove keywords to the selected kaomoji."""
 
-    kaomojidb = open_database(database_filename=database_filename)
+    if config_filename and os.path.isfile(config_filename):
+        user_config = get_user_config_file(filename=USER_CONFIG_FILE)
+        CONFIG.update(user_config)
+
+    if database_filename:
+        CONFIG.update({'database_filename': database_filename})
+
+    db_filename = CONFIG['database_filename']
+    kaomojidb = open_database(database_filename=db_filename)
+
+    if not kaomojidb:
+        raise KaomojiToolNoDatabase
+
+
+    if not kaomojidb.get_kaomoji_by_code(code=kaomoji_code)
+        print("New kaomoji! Adding it do database...")
+        new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
+        kaomojidb.add_kaomoji(kaomoji=new_kaomoji)
+    else:
+        print("Kaomoji already exists! Adding keywords to it...")
+
+    edit_kaomoji = kaomojidb.get_kaomoji_by_code(code=kaomoji_code)
+    edit_kaomoji.add_keywords(keywords=keywords)
+
+    print("Backing up the database...")
+    backup_db(db=kaomojidb)
+
+    print("Adding keywords...")
+    print("kaomoji: ", edit_kaomoji.code)
+    print("keywords: ", edit_kaomoji.keywords)
+    kaomojidb.update_kaomoji(edit_kaomoji)
+
+    print("Writing db {}".format(kaomojidb.filename))
+    kaomojidb.write()
 
 
 if __name__ == "__main__":
