@@ -16,7 +16,7 @@ from kaomoji import KaomojiDBKaomojiExists
 from kaomoji import KaomojiDBKaomojiDoesntExist
 
 class KaomojiToolNoDatabase(Exception):
-    description="Kaomoji edit tool could'nt open database"
+    description="Kaomoji edit tool couldn't open database"
     def __init__(self, *args, **kwargs):
         super().__init__(self.description, *args, **kwargs)
 
@@ -278,14 +278,15 @@ def kwadd(database_filename, kaomoji_code, keywords, config_filename):
     if not kaomojidb:
         raise KaomojiToolNoDatabase
 
-    if not kaomojidb.get_kaomoji_by_code(code=kaomoji_code)
+    if not kaomojidb.get_kaomoji(by_entity=kaomoji_code):
         print("New kaomoji! Adding it do database...")
         new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
         kaomojidb.add_kaomoji(kaomoji=new_kaomoji)
     else:
         print("Kaomoji already exists! Removing keywords from it...")
 
-    edit_kaomoji = kaomojidb.get_kaomoji_by_code(code=kaomoji_code)
+    #edit_kaomoji = kaomojidb.get_kaomoji_by_code(code=kaomoji_code)
+    edit_kaomoji = kaomojidb.get_kaomoji(by_entity=kaomoji_code)
     edit_kaomoji.add_keywords(keywords=keywords)
 
     print("Backing up the database...")
@@ -324,20 +325,20 @@ def kwadd(database_filename, kaomoji_code, keywords, config_filename):
     if not kaomojidb:
         raise KaomojiToolNoDatabase
 
-    if not kaomojidb.get_kaomoji_by_code(code=kaomoji_code)
+    if not kaomojidb.get_kaomoji(by_entity=kaomoji_code):
         print("New kaomoji! Adding it do database...")
         new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
         kaomojidb.add_kaomoji(kaomoji=new_kaomoji)
     else:
         print("Kaomoji already exists! Adding keywords to it...")
 
-    edit_kaomoji = kaomojidb.get_kaomoji_by_code(code=kaomoji_code)
+    edit_kaomoji = kaomojidb.get_kaomoji(by_entity=kaomoji_code)
     edit_kaomoji.remove_keywords(keywords=keywords)
 
     print("Backing up the database...")
     backup_db(db=kaomojidb)
 
-    print("Adding keywords...")
+    print("Removing keywords...")
     print("kaomoji: ", edit_kaomoji.code)
     print("keywords: ", edit_kaomoji.keywords)
     kaomojidb.update_kaomoji(edit_kaomoji)
