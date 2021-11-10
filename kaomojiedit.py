@@ -192,13 +192,15 @@ def edit(database_filename, kaomoji_code, keywords_add, keywords_rm,
 
     if not kaomojidb.get_kaomoji(by_entity=kaomoji_code):
         print("New kaomoji! Adding it do database...")
-        new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
+        # new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
+        new_kaomoji = Kaomoji(code=kaomoji_code)
         kaomojidb.add_kaomoji(kaomoji=new_kaomoji)
     else:
         print("Kaomoji already exists! Removing keywords from it...")
 
     edit_kaomoji = kaomojidb.get_kaomoji(by_entity=kaomoji_code)
-    edit_kaomoji.remove_keywords(keywords=keywords_to_rm)
+    if not new_kaomoji:
+        edit_kaomoji.remove_keywords(keywords=keywords_to_rm)
     edit_kaomoji.add_keywords(keywords=keywords_to_add)
 
     print("Backing up the database...")

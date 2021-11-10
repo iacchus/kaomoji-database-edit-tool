@@ -25,8 +25,6 @@ class KaomojiKaomojiKeywordDoesntExist(Exception):
         super().__init__(self.description, *args, **kwargs)
 
 
-KaomojiDB: type
-
 class Kaomoji:
     """Represents a Kaomoji entity."""
 
@@ -353,7 +351,7 @@ class KaomojiDB:
 
         return self.kaomojis[kaomoji.code]
 
-    def compare(self, other: KaomojiDB) -> dict[str: Kaomoji]:
+    def compare(self, other) -> dict[str: Kaomoji]:
         """Compares two KaomojiDB instances."""
 
         if not isinstance(other, KaomojiDB):
