@@ -1,5 +1,5 @@
+import base64
 from hashlib import sha256
-
 from typing import Union
 
 # let's make a notebook of exceptions here: we can use it later or not
@@ -134,22 +134,53 @@ class Kaomoji:
         """
 
         code_bytes = code.encode("utf-8")
-        code_sha256_hex_digestion = sha256(code_bytes).hexdigest()
+        the_hash = sha256(code_bytes).hexdigest()
 
-        the_hash = int(code_sha256_hex_digestion, base=16)
+        # the_hash = int(code_sha256_hex_digestion, base=16)
 
         if self_register:
             self.hash = the_hash
 
         return the_hash
 
-    def _make_shortcode(self, the_hash, self_register=False) -> str:
-        pass
+    # def _make_hash(self, code, self_register=False) -> int:
+    #     """Gives a UUID for a given kaomoji, for comparison.
+    #
+    #     It is the base10 of the sha256 digest of the kaomoji code:
+    #         HASH = INT10(SHA256(BYTES(UNICODE_KAOMOJI_CODE_UTF8)))
+    #
+    #     With this we can know if some emoji is already on the DATABASE, so to
+    #         append keywords to it.
+    #     """
+    #
+    #     code_bytes = code.encode("utf-8")
+    #     code_sha256_hex_digestion = sha256(code_bytes).hexdigest()
+    #
+    #     the_hash = int(code_sha256_hex_digestion, base=16)
+    #
+    #     if self_register:
+    #         self.hash = the_hash
+    #
+    #     return the_hash
+
+
+    def _make_shortcode(self, code, self_register=False) -> str:
+        """Generates a base64 shortcode to the kaomoji's code
+        """
+
+        code_bytes = code.encode("utf-8")
+
+        b64_shortcode = base64.b64encode(code_bytes)
+
+        if self_register:
+            self.shortcode = b64_shortcode
+
+        return b64_shortcode
 
     def _make_inits(self):
         if self.code:
             self.hash = self._make_hash(code=self.code)
-            #self.shortcode = self._make_shortcode(self.hash)
+            self.shortcode = self._make_shortcode(code=self.code)
 
     def _hash_to_shortcode(self):
         pass
