@@ -9,6 +9,21 @@ Features:
 * easily add new kaomoji to the database
 * easily add ou remove new keywords
 
+*(readme in the make!)*
+
+## Installation
+
+1. Clone this repository and change to it's directory
+2. pip install --requirement requirements.txt
+3. Get the emoticons.tsv:
+  wget https://raw.githubusercontent.com/cspeterson/splatmoji/master/data/emoticons/emoticons.tsv -O emoticons.tsv
+
+## Usage
+
+python -m kaomojiedit <command> [options]
+
+python -m kaomojiedit --help  # list commands
+
 ## Commands
 
 ### add
@@ -33,6 +48,8 @@ Options:
 ### kwadd
 
 ### kwrm
+
+### diff
 
 ## User config file:
 
