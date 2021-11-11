@@ -392,8 +392,9 @@ def diff(database_filename, other_database_filename, diff_type,
 
     # TODO: TAKE SHA256, FORMAT FOR KaomojiDB, WRITE
 
+
 ###############################################################################
-# dbtatus                                                                     #
+# dbstatus                                                                    #
 ###############################################################################
 @cli.command()
 @database_filename_option
