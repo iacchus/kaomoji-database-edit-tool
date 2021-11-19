@@ -24,7 +24,7 @@ DEFAULT_CONFIG = {
     'database_filename': './emoticons.tsv',
 }
 
-USER_CONFIG_FILE = os.path.expanduser("~/.kaomojiedit")
+USER_CONFIG_FILE = os.path.expanduser("~/.kaomojitool")
 USER_CONFIG: dict
 
 CONFIG = DEFAULT_CONFIG  # initialize it with defaults
@@ -419,6 +419,7 @@ def dbstatus(database_filename, config_filename):
 
     print("database file:", db_filename)
     print("number of kaomojis:", number_of_kaomoji)
+
 
 if __name__ == "__main__":
 
