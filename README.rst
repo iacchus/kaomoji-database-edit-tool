@@ -1,49 +1,78 @@
-.. These are examples of badges you might want to add to your README:
-   please update the URLs accordingly
-
-    .. image:: https://api.cirrus-ci.com/github/<USER>/kaomoji-database-edit-tool.svg?branch=main
-        :alt: Built Status
-        :target: https://cirrus-ci.com/github/<USER>/kaomoji-database-edit-tool
-    .. image:: https://readthedocs.org/projects/kaomoji-database-edit-tool/badge/?version=latest
-        :alt: ReadTheDocs
-        :target: https://kaomoji-database-edit-tool.readthedocs.io/en/stable/
-    .. image:: https://img.shields.io/coveralls/github/<USER>/kaomoji-database-edit-tool/main.svg
-        :alt: Coveralls
-        :target: https://coveralls.io/r/<USER>/kaomoji-database-edit-tool
-    .. image:: https://img.shields.io/pypi/v/kaomoji-database-edit-tool.svg
-        :alt: PyPI-Server
-        :target: https://pypi.org/project/kaomoji-database-edit-tool/
-    .. image:: https://img.shields.io/conda/vn/conda-forge/kaomoji-database-edit-tool.svg
-        :alt: Conda-Forge
-        :target: https://anaconda.org/conda-forge/kaomoji-database-edit-tool
-    .. image:: https://pepy.tech/badge/kaomoji-database-edit-tool/month
-        :alt: Monthly Downloads
-        :target: https://pepy.tech/project/kaomoji-database-edit-tool
-    .. image:: https://img.shields.io/twitter/url/http/shields.io.svg?style=social&label=Twitter
-        :alt: Twitter
-        :target: https://twitter.com/kaomoji-database-edit-tool
-
-.. image:: https://img.shields.io/badge/-PyScaffold-005CA0?logo=pyscaffold
-    :alt: Project generated with PyScaffold
-    :target: https://pyscaffold.org/
-
-|
-
-==========================
-kaomoji-database-edit-tool
+Kaomoji Database Edit Tool
 ==========================
 
+Quickly add and categorize kaomojis in a database.
 
-    Add a short description here!
+Python lib (ready) and tool (soon…) to edit kaomoji database.
 
+Features:
 
-A longer description of your project goes here...
+-  easily add new kaomoji to the database
+-  easily add ou remove new keywords
 
+*(readme in the make!)*
 
-.. _pyscaffold-notes:
+Installation
+------------
 
-Note
-====
+1. Clone this repository and change to it’s directory
+2. pip install –requirement requirements.txt
+3. Get the emoticons.tsv: wget
+   https://raw.githubusercontent.com/cspeterson/splatmoji/master/data/emoticons/emoticons.tsv
+   -O emoticons.tsv
 
-This project has been set up using PyScaffold 4.1.1. For details and usage
-information on PyScaffold see https://pyscaffold.org/.
+Usage
+-----
+
+python -m kaomojiedit [options]
+
+python -m kaomojiedit –help # list commands
+
+Commands
+--------
+
+add
+~~~
+
+::
+
+   Usage: python -m kaomojiedit add [OPTIONS]
+
+     Adds the selected kaomoji to the selected database
+
+   Options:
+     -f, --database TEXT  Kaomoji database file name.
+     -k, --kaomoji TEXT   Kaomoji; use - to read from STDIN.
+     -w, --keywords TEXT  Comma-separated list of keywords to change.
+     --help               Show this message and exit.
+
+rm
+~~
+
+edit
+~~~~
+
+kwadd
+~~~~~
+
+kwrm
+~~~~
+
+diff
+~~~~
+
+User config file:
+-----------------
+
+You can have a user configuration file at ``~/.kaomojiedit``. The file
+has ``toml`` format. Current options:
+
+``~/.kaomojiedit`` config file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+   database_filename = "emoticons.tsv"  # can be a path relative to current
+                                        # directory or absolute; ~ is expanded
+                                        # to $HOME
+                                        # default database file to edit
