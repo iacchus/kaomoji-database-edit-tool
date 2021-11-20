@@ -9,11 +9,16 @@ import time
 import click
 import toml
 
-from kaomojitool.kaomoji import Kaomoji
-from kaomojitool.kaomoji import KaomojiDB
+# from kaomojitool.kaomoji import Kaomoji
+# from kaomojitool.kaomoji import KaomojiDB
+#
+# from kaomojitool.kaomoji import KaomojiDBKaomojiExists
+# from kaomojitool.kaomoji import KaomojiDBKaomojiDoesntExist
+from .kaomoji import Kaomoji
+from .kaomoji import KaomojiDB
 
-from kaomojitool.kaomoji import KaomojiDBKaomojiExists
-from kaomojitool.kaomoji import KaomojiDBKaomojiDoesntExist
+from .kaomoji import KaomojiDBKaomojiExists
+from .kaomoji import KaomojiDBKaomojiDoesntExist
 
 class KaomojiToolNoDatabase(Exception):
     description="Kaomoji edit tool couldn't open database"
