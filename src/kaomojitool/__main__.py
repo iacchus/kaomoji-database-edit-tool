@@ -159,18 +159,35 @@ def add(database_filename, kaomoji_code, keywords, config_filename):
         raise KaomojiToolNoDatabase
 
     if kaomoji_code:
-            new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
+        new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
+        if not kaomojidb.kaomoji_exists(new_kaomoji):
+            print("Backing up the database...")
+            backup_db(db=kaomojidb)
 
-    if not kaomojidb.kaomoji_exists(new_kaomoji):
-        print("Backing up the database...")
-        backup_db(db=kaomojidb)
+            print("Adding...")
+            print("kaomoji:", new_kaomoji.code)
+            print("keywords:", new_kaomoji.keywords)
+            kaomojidb.add_kaomoji(new_kaomoji)
+        else:
+            raise KaomojiDBKaomojiExists
 
-        print("Adding...")
-        print("kaomoji:", new_kaomoji.code)
-        print("keywords:", new_kaomoji.keywords)
-        kaomojidb.add_kaomoji(new_kaomoji)
-    else:
-        raise KaomojiDBKaomojiExists
+    else:  # read from stdin
+        stdin = click.get_text_stream('stdin')
+
+        for line in stdin.readlines():
+            kaomoji_code, *args = line.split('\t')
+            new_kaomoji = Kaomoji(code=kaomoji_code, keywords=args)
+
+            if not kaomojidb.kaomoji_exists(new_kaomoji):
+                print("Backing up the database...")
+                backup_db(db=kaomojidb)
+
+                print("Adding...")
+                print("kaomoji:", new_kaomoji.code)
+                print("keywords:", new_kaomoji.keywords)
+                kaomojidb.add_kaomoji(new_kaomoji)
+            else:
+                raise KaomojiDBKaomojiExists
 
     print("Writing db", kaomojidb.filename)
     kaomojidb.write()
