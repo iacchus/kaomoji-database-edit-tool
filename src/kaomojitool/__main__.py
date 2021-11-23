@@ -158,41 +158,76 @@ def add(database_filename, kaomoji_code, keywords, config_filename):
     if not kaomojidb:
         raise KaomojiToolNoDatabase
 
+    print("Backing up the database '{}'...".format(db_filename))
+    backup_db(db=kaomojidb)
+
+    kaomoji_add_list: list = list()
+
     if kaomoji_code:
         new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
-        if not kaomojidb.kaomoji_exists(new_kaomoji):
-            print("Backing up the database...")
-            backup_db(db=kaomojidb)
+        kaomoji_add_list.append(new_kaomoji)
+    else:
+        stdin = click.get_text_stream('stdin')
 
-            print("Adding...")
+        for line in stdin.readlines():
+            kaomoji, *args = line.strip().split('\t')
+            kaomoji_code = kaomoji.strip()
+
+            if not kaomoji_code:
+                continue  # line empty or empty first element
+
+            keywords = [] if not args else args[0]
+
+            new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
+            kaomoji_add_list.append(new_kaomoji)
+
+    for kaomoji in kaomoji_add_list:
+
+        if kaomojidb.kaomoji_exists(new_kaomoji) and keywords:
+            pass
+        elif not kaomojidb.kaomoji_exists(new_kaomoji):
+            pass
+
+    if not kaomoji_code:  # read from stdin
+
+        stdin = click.get_text_stream('stdin')
+
+        for line in stdin.readlines():
+            kaomoji_code, *args = line.strip().split('\t')
+            kaomoji_code = kaomoji_code.strip()
+
+            keywords = [] if not args else args[0]
+
+            if not kaomoji_code:
+                continue  # line empty or empty first element
+
+            new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
+
+            if kaomojidb.kaomoji_exists(new_kaomoji) and keywords:
+                print("Kaomoji already exists! Updating keywords..")
+
+                kaomojidb.get_kaomoji(new_kaomoji).add_keywords(keywords)
+                print("kaomoji:", new_kaomoji.code)
+                print("keywords:", new_kaomoji.keywords)
+                #kaomojidb.add_kaomoji(new_kaomoji)
+            elif not kaomojidb.kaomoji_exists(new_kaomoji):
+                print("New kaomoji! Adding...")
+                print("kaomoji:", new_kaomoji.code)
+                print("keywords:", new_kaomoji.keywords)
+                kaomojidb.add_kaomoji(new_kaomoji)
+            else:
+                print("Nothing to do...")
+    else:  # if kaomoji_code
+        new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
+        if kaomojidb.kaomoji_exists(new_kaomoji) and keywords:
+        if not kaomojidb.kaomoji_exists(new_kaomoji):
+
+            print("New kaomoji! Adding...")
             print("kaomoji:", new_kaomoji.code)
             print("keywords:", new_kaomoji.keywords)
             kaomojidb.add_kaomoji(new_kaomoji)
         else:
             raise KaomojiDBKaomojiExists
-
-    else:  # read from stdin
-        stdin = click.get_text_stream('stdin')
-
-        for line in stdin.readlines():
-            kaomoji_code, *args = line.split('\t')
-            kaomoji_code = kaomoji_code.strip()
-
-            if not kaomoji_code:
-                continue  # line empty or empty first element
-
-            new_kaomoji = Kaomoji(code=kaomoji_code, keywords=args)
-
-            if not kaomojidb.kaomoji_exists(new_kaomoji):
-                print("Backing up the database...")
-                backup_db(db=kaomojidb)
-
-                print("Adding...")
-                print("kaomoji:", new_kaomoji.code)
-                print("keywords:", new_kaomoji.keywords)
-                kaomojidb.add_kaomoji(new_kaomoji)
-            else:
-                raise KaomojiDBKaomojiExists
 
     print("Writing db", kaomojidb.filename)
     kaomojidb.write()
