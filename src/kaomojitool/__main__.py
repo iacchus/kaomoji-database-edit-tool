@@ -176,6 +176,11 @@ def add(database_filename, kaomoji_code, keywords, config_filename):
 
         for line in stdin.readlines():
             kaomoji_code, *args = line.split('\t')
+            kaomoji_code = kaomoji_code.strip()
+
+            if not kaomoji_code:
+                continue  # line empty or empty first element
+
             new_kaomoji = Kaomoji(code=kaomoji_code, keywords=args)
 
             if not kaomojidb.kaomoji_exists(new_kaomoji):
