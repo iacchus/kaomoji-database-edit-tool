@@ -166,7 +166,7 @@ def add(database_filename, kaomoji_code, keywords, config_filename):
     if kaomoji_code:
         new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
         kaomoji_add_list.append(new_kaomoji)
-    else:
+    else:  # read from stdin
         stdin = click.get_text_stream('stdin')
 
         for line in stdin.readlines():
@@ -183,51 +183,17 @@ def add(database_filename, kaomoji_code, keywords, config_filename):
 
     for kaomoji in kaomoji_add_list:
 
-        if kaomojidb.kaomoji_exists(new_kaomoji) and keywords:
-            pass
-        elif not kaomojidb.kaomoji_exists(new_kaomoji):
-            pass
+        db_kaomoji = kaomojidb.get_kaomoji(kaomoji)  # reference or None
 
-    if not kaomoji_code:  # read from stdin
-
-        stdin = click.get_text_stream('stdin')
-
-        for line in stdin.readlines():
-            kaomoji_code, *args = line.strip().split('\t')
-            kaomoji_code = kaomoji_code.strip()
-
-            keywords = [] if not args else args[0]
-
-            if not kaomoji_code:
-                continue  # line empty or empty first element
-
-            new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
-
-            if kaomojidb.kaomoji_exists(new_kaomoji) and keywords:
-                print("Kaomoji already exists! Updating keywords..")
-
-                kaomojidb.get_kaomoji(new_kaomoji).add_keywords(keywords)
-                print("kaomoji:", new_kaomoji.code)
-                print("keywords:", new_kaomoji.keywords)
-                #kaomojidb.add_kaomoji(new_kaomoji)
-            elif not kaomojidb.kaomoji_exists(new_kaomoji):
-                print("New kaomoji! Adding...")
-                print("kaomoji:", new_kaomoji.code)
-                print("keywords:", new_kaomoji.keywords)
-                kaomojidb.add_kaomoji(new_kaomoji)
-            else:
-                print("Nothing to do...")
-    else:  # if kaomoji_code
-        new_kaomoji = Kaomoji(code=kaomoji_code, keywords=keywords)
-        if kaomojidb.kaomoji_exists(new_kaomoji) and keywords:
-        if not kaomojidb.kaomoji_exists(new_kaomoji):
-
+        if db_kaomoji and kaomoji.keywords:
+            print("Kaomoji already exists! Updating keywords..")
+            db_kaomoji.add_keywords(keywords)
+        elif not db_kaomoji:
             print("New kaomoji! Adding...")
-            print("kaomoji:", new_kaomoji.code)
-            print("keywords:", new_kaomoji.keywords)
-            kaomojidb.add_kaomoji(new_kaomoji)
-        else:
-            raise KaomojiDBKaomojiExists
+            db_kaomoji = kaomojidb.add_kaomoji(kaomoji)  # returns reference
+
+        print("kaomoji:", db_kaomoji.code)
+        print("keywords:", db_kaomoji.keywords)
 
     print("Writing db", kaomojidb.filename)
     kaomojidb.write()
