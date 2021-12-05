@@ -189,6 +189,13 @@ keywords_xpath_string_option = click.option(
     type=str,
     help="XPath of the keyword element"
 )
+container_xpath_string_option = click.option(
+    "-C", "--container-xpath-string", "container_xpath_string",
+    default=None,
+    type=str,
+    help="XPath of the container element, which contains the kaomoji and it's"\
+         " respective kayword(s)"
+)
 
 @click.group()
 def cli():
@@ -473,7 +480,7 @@ def query(database_filename, query_string, config_filename):
 @keywords_xpath_string_option
 @config_filename_option
 def scrape(url_to_scrape, kaomoji_xpath_string, keywords_xpath_string,
-           config_filename):
+           container_xpath_string, config_filename):
     """Adds the selected kaomoji to the selected database"""
 
     # https://devhints.io/xpath
