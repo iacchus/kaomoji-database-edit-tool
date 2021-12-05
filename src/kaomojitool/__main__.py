@@ -27,18 +27,21 @@ DEFAULT_CONFIG = {
 USER_CONFIG_FILENAME = os.path.expanduser("~/.kaomojitool")
 USER_CONFIG: dict
 
-CONFIG = DEFAULT_CONFIG  # initialize it with defaults
+# CONFIG = DEFAULT_CONFIG  # initialize it with defaults
 
-USER_CONFIG = dict()
+# USER_CONFIG = dict()
 
 class KaomojiTool:
 
     def __init__(self, database_filename, config_filename, *args, **kwargs):
 
+        self.config = DEFAULT_CONFIG
+        self.user_config = dict()
+
         if os.path.isfile(USER_CONFIG_FILENAME):
-            USER_CONFIG =\
+            self.user_config =\
                 self._get_user_config_file(filename=USER_CONFIG_FILENAME)
-            CONFIG.update(USER_CONFIG)
+            self.config.update(self.user_config)
 
         self.config = self._update_config(config_filename=config_filename,
                                           database_filename=database_filename)
@@ -75,7 +78,7 @@ class KaomojiTool:
         backup.write(filename=backup_filename)
 
     def _update_config(self, database_filename=None, config_filename=None,
-                       config=CONFIG,
+                       config=DEFAULT_CONFIG,
                        user_config_filename=USER_CONFIG_FILENAME):
         """Updates config with priority:
         1. user command-line entry.
@@ -113,7 +116,7 @@ keywords_remove_option = click.option(
 
 database_filename_option = click.option(
     "-f", "--database", "database_filename",
-    default=CONFIG['database_filename'],
+    default=DEFAULT_CONFIG['database_filename'],
     type=str,
     help="Kaomoji database file name.")
 
