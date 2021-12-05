@@ -369,7 +369,7 @@ class KaomojiDB:
         results = dict()
 
         for code, kaomoji in self.kaomojis.items():
-            if kaomoji.matches_query:
+            if kaomoji.matches_query(query):
                 results.update({code: kaomoji})
 
         return results
