@@ -399,14 +399,12 @@ def diff(database_filename, other_database_filename, diff_type,
     kaomojitool_other =\
         KaomojiTool(database_filename=other_database_filename,
                     config_filename=config_filename)
-    # kaomojitool.database.filename = config['database_filename']
-    # kaomoji_db = open_database(database_filename=kaomojitool.database.filename)
-    # other_db = open_database(database_filename=other_database_filename)
 
     if not kaomojitool.database or not kaomojitool_other.database:
         raise KaomojiToolNoDatabase
 
-    diff_dict = kaomoji_database.compare(other=other_db, diff_type=diff_type)
+    diff_dict = kaomojitool.database.compare(other=kaomojitool_other.database,
+                                             diff_type=diff_type)
     print(diff_dict)
 
     # TAKE SHA256, FORMAT FOR kaomojitool.database, WRITE
@@ -424,17 +422,7 @@ def dbstatus(database_filename, config_filename):
     kaomojitool = KaomojiTool(database_filename=database_filename,
                               config_filename=config_filename)
 
-    print("Backing up the database '{}'...".format(kaomojitool.database.filename))
-    kaomojitool.backup_database()
-    # config = update_config(database_filename, config_filename)
-
-    kaomojitool.database.filename = config['database_filename']
-    kaomoji_database = open_database(database_filename=kaomojitool.database.filename)
-
-    if not kaomoji_database:
-        raise KaomojiToolNoDatabase
-
-    number_of_kaomoji = len(kaomoji_database.kaomojis)
+    number_of_kaomoji = len(kaomojitool.database.kaomojis)
 
     print("database file:", kaomojitool.database.filename)
     print("number of kaomojis:", number_of_kaomoji)
