@@ -388,7 +388,7 @@ class KaomojiDB:
         for kaomoji_code in other.kaomojis:
             if kaomoji_code not in self.kaomojis:
                 other_extra_kaomoji = other.kaomojis[kaomoji_code]
-                other_extra_dict.update({kaomoji_code: different})
+                other_extra_dict.update({kaomoji_code: other_extra_kaomoji})
 
             else:
                 for keyword in other.kaomojis[kaomoji_code].keywords:
