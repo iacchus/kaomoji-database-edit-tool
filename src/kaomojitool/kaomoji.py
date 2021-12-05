@@ -123,6 +123,14 @@ class Kaomoji:
 
         return line_entry
 
+    def matches_query(self, query):
+        for keyword in self.keywords:
+            if keyword.startswith(query):
+                return True
+
+        return False
+
+
     def _make_hash(self, code, self_register=False) -> int:
         """Gives a UUID for a given kaomoji, for comparison.
 
@@ -356,6 +364,15 @@ class KaomojiDB:
         self.kaomojis.update({kaomoji.code: kaomoji})
 
         return self.kaomojis[kaomoji.code]
+
+    def query(self, query):
+        results = dict()
+
+        for code, kaomoji in self.kaomojis.items():
+            if kaomoji.matches_query:
+                results.update({code: kaomoji})
+
+        return results
 
     def compare(self, other, diff_type="additional") -> dict[str: Kaomoji]:
         """Compares two KaomojiDB instances."""

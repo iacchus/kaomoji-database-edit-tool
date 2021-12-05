@@ -428,7 +428,8 @@ def query(database_filename, query_string, config_filename):
     kaomojitool = KaomojiTool(database_filename=database_filename,
                               config_filename=config_filename)
 
-    #kaomojitool.database
+    matches = kaomojitool.database.query(query_string)
+    print(matches)
 
 if __name__ == "__main__":
 
