@@ -50,12 +50,14 @@ class KaomojiTool:
 
     def _get_user_config_file(self, filename):
 
-        config_file = os.path.expanduser(filename)
+        # config_file = os.path.expanduser(filename)
 
-        if os.path.isfile(config_file):
-            return toml.load(config_file)
+        if os.path.isfile(filename):
+            self.user_config = toml.load(filename)
 
-        return DEFAULT_CONFIG
+        self.config.update(self.user_config)
+
+        return self.user_config
 
     def _open_database(self):
 
