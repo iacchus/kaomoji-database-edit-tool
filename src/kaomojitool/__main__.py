@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-from sys import argv
-
 import os
 import random
 import time
@@ -9,9 +7,6 @@ import time
 import click
 import toml
 
-# from kaomojitool.kaomoji import Kaomoji
-# from kaomojitool.kaomoji import KaomojiDB
-#
 # from kaomojitool.kaomoji import KaomojiDBKaomojiExists
 # from kaomojitool.kaomoji import KaomojiDBKaomojiDoesntExist
 from .kaomoji import Kaomoji
@@ -29,7 +24,7 @@ DEFAULT_CONFIG = {
     'database_filename': './emoticons.tsv',
 }
 
-USER_CONFIG_FILE = os.path.expanduser("~/.kaomojitool")
+USER_CONFIG_FILENAME = os.path.expanduser("~/.kaomojitool")
 USER_CONFIG: dict
 
 CONFIG = DEFAULT_CONFIG  # initialize it with defaults
@@ -54,16 +49,39 @@ def backup_db(db: KaomojiDB):
 
 def open_database(database_filename):
 
+    # HERE: also check if it is valid
     if os.path.isfile(database_filename):
         return KaomojiDB(filename=database_filename)
+    else:
+        raise KaomojiToolNoDatabase
 
     return None
 
 
+def update_config(database_filename=None, config_filename=None,
+                  global_config=CONFIG,
+                  user_config_filename=USER_CONFIG_FILENAME):
+    """Updates config with priority:
+    1. user command-line entry.
+    2. userdefault config file.
+    3. default config.
+    """
+
+    if config_filename and os.path.isfile(config_filename):
+        user_config = get_user_config_file(filename=user_config_filename)
+        global_config.update(user_config)
+
+    if database_filename:
+        global_config.update({'database_filename': database_filename})
+
+    return global_config
+
+
 USER_CONFIG = dict()
 
-if os.path.isfile(USER_CONFIG_FILE):
-    USER_CONFIG = get_user_config_file(filename=USER_CONFIG_FILE)
+
+if os.path.isfile(USER_CONFIG_FILENAME):
+    USER_CONFIG = get_user_config_file(filename=USER_CONFIG_FILENAME)
     CONFIG.update(USER_CONFIG)
 
 
@@ -123,6 +141,12 @@ diff_type_option = click.option(
                        "intersection"], case_sensitive=False),
     help="Comma-separated list of keywords to change.")
 
+query_string_option = click.option(
+    "-q", "--query", "query_string",
+    default="",
+    type=str,
+    help="String to query keywords.")
+
 @click.group()
 def cli():
     """Toolchain to edit kaomoji database files.
@@ -145,14 +169,9 @@ def cli():
 def add(database_filename, kaomoji_code, keywords, config_filename):
     """Adds the selected kaomoji to the selected database"""
 
-    if config_filename and os.path.isfile(config_filename):
-        user_config = get_user_config_file(filename=USER_CONFIG_FILE)
-        CONFIG.update(user_config)
+    config = update_config(database_filename, config_filename)
 
-    if database_filename:
-        CONFIG.update({'database_filename': database_filename})
-
-    db_filename = CONFIG['database_filename']
+    db_filename = config['database_filename']
     kaomojidb = open_database(database_filename=db_filename)
 
     if not kaomojidb:
@@ -214,14 +233,9 @@ def edit(database_filename, kaomoji_code, keywords_add, keywords_remove,
     keywords.
     """
 
-    if config_filename and os.path.isfile(config_filename):
-        user_config = get_user_config_file(filename=USER_CONFIG_FILE)
-        CONFIG.update(user_config)
+    config = update_config(database_filename, config_filename)
 
-    if database_filename:  # command-line option have preemptiness
-        CONFIG.update({'database_filename': database_filename})
-
-    db_filename = CONFIG['database_filename']
+    db_filename = config['database_filename']
     kaomojidb = open_database(database_filename=db_filename)
 
     if not kaomojidb:
@@ -230,7 +244,8 @@ def edit(database_filename, kaomoji_code, keywords_add, keywords_remove,
     keywords_to_add = ",".join(keywords_add)  # adding will have preemptiness
     keywords_to_remove = ",".join(keywords_remove)
 
-    print(keywords_to_remove)
+    print("Keywords to remove:", keywords_to_remove)
+
     if not kaomojidb.get_kaomoji(by_entity=kaomoji_code):
         print("New kaomoji! Adding it do database...")
         new_kaomoji = kaomojidb.add_kaomoji(Kaomoji(code=kaomoji_code))
@@ -265,20 +280,15 @@ def edit(database_filename, kaomoji_code, keywords_add, keywords_remove,
 def rm(database_filename, kaomoji_code, config_filename):
     """Removes the selected kaomoji from the selected database"""
 
-    if config_filename and os.path.isfile(config_filename):
-        user_config = get_user_config_file(filename=USER_CONFIG_FILE)
-        CONFIG.update(user_config)
+    config = update_config(database_filename, config_filename)
 
-    if database_filename:
-        CONFIG.update({'database_filename': database_filename})
-
-    db_filename = CONFIG['database_filename']
+    db_filename = config['database_filename']
     kaomojidb = open_database(database_filename=db_filename)
 
     if not kaomojidb:
         raise KaomojiToolNoDatabase
 
-    if  kaomoji_code:
+    if kaomoji_code:
         kaomoji_to_remove = Kaomoji(code=kaomoji_code)
 
     if kaomojidb.kaomoji_exists(kaomoji_to_remove):
@@ -307,14 +317,9 @@ def rm(database_filename, kaomoji_code, config_filename):
 def kwadd(database_filename, kaomoji_code, keywords, config_filename):
     """Add keywords to the selected kaomoji."""
 
-    if config_filename and os.path.isfile(config_filename):
-        user_config = get_user_config_file(filename=USER_CONFIG_FILE)
-        CONFIG.update(user_config)
+    config = update_config(database_filename, config_filename)
 
-    if database_filename:
-        CONFIG.update({'database_filename': database_filename})
-
-    db_filename = CONFIG['database_filename']
+    db_filename = config['database_filename']
     kaomojidb = open_database(database_filename=db_filename)
 
     if not kaomojidb:
@@ -354,14 +359,9 @@ def kwadd(database_filename, kaomoji_code, keywords, config_filename):
 def kwrm(database_filename, kaomoji_code, keywords, config_filename):
     """Remove keywords to the selected kaomoji."""
 
-    if config_filename and os.path.isfile(config_filename):
-        user_config = get_user_config_file(filename=USER_CONFIG_FILE)
-        CONFIG.update(user_config)
+    config = update_config(database_filename, config_filename)
 
-    if database_filename:
-        CONFIG.update({'database_filename': database_filename})
-
-    db_filename = CONFIG['database_filename']
+    db_filename = config['database_filename']
     kaomojidb = open_database(database_filename=db_filename)
 
     if not kaomojidb:
@@ -401,14 +401,9 @@ def diff(database_filename, other_database_filename, diff_type,
          config_filename):
     """Compare two databases and logs the difference between them."""
 
-    if config_filename and os.path.isfile(config_filename):
-        user_config = get_user_config_file(filename=USER_CONFIG_FILE)
-        CONFIG.update(user_config)
+    config = update_config(database_filename, config_filename)
 
-    if database_filename:
-        CONFIG.update({'database_filename': database_filename})
-
-    db_filename = CONFIG['database_filename']
+    db_filename = config['database_filename']
     kaomoji_db = open_database(database_filename=db_filename)
     other_db = open_database(database_filename=other_database_filename)
 
@@ -430,14 +425,9 @@ def diff(database_filename, other_database_filename, diff_type,
 def dbstatus(database_filename, config_filename):
     """Show data from the database."""
 
-    if config_filename and os.path.isfile(config_filename):
-        user_config = get_user_config_file(filename=USER_CONFIG_FILE)
-        CONFIG.update(user_config)
+    config = update_config(database_filename, config_filename)
 
-    if database_filename:
-        CONFIG.update({'database_filename': database_filename})
-
-    db_filename = CONFIG['database_filename']
+    db_filename = config['database_filename']
     kaomoji_db = open_database(database_filename=db_filename)
 
     if not kaomoji_db:
@@ -448,6 +438,20 @@ def dbstatus(database_filename, config_filename):
     print("database file:", db_filename)
     print("number of kaomojis:", number_of_kaomoji)
 
+
+###############################################################################
+# query                                                                         #
+###############################################################################
+@cli.command()
+@database_filename_option
+@query_string_option
+@config_filename_option
+def query(database_filename, query_string, config_filename):
+    """Adds the selected kaomoji to the selected database"""
+
+    config = update_config(database_filename, config_filename)
+
+    for kaomoji in
 
 if __name__ == "__main__":
 
