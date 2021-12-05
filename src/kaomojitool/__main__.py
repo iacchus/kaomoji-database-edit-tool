@@ -501,7 +501,6 @@ def scrape(url_to_scrape, kaomoji_xpath_string, keywords_xpath_string,
     tree = html.fromstring(page.content)
     nds = tree.xpath(kaomoji_xpath_string)
 
-    tune_list = list()
     for kaomoji in nds:
         print(kaomoji.text_content())
 
