@@ -4,6 +4,9 @@ import os
 import random
 import time
 
+from lxml import html
+import requests
+
 import click
 import toml
 
@@ -167,6 +170,25 @@ query_string_option = click.option(
     default="",
     type=str,
     help="String to query keywords.")
+
+url_to_scrape_option = click.option(
+    "-u", "--url", "url_to_scrape",
+    default=None,
+    type=str,
+    help="URL to scrape from"
+)
+kaomoji_xpath_string_option = click.option(
+    "-x", "--kaomoji-xpath-string", "kaomoji_xpath_string",
+    default = None,
+    type = str,
+    help = "XPath of the kaomoji element"
+)
+keywords_xpath_string_option = click.option(
+    "-X", "--keywords-xpath-string", "keywords_xpath_string",
+    default=None,
+    type=str,
+    help="XPath of the keyword element"
+)
 
 @click.group()
 def cli():
@@ -434,13 +456,40 @@ def dbstatus(database_filename, config_filename):
 @query_string_option
 @config_filename_option
 def query(database_filename, query_string, config_filename):
-    """Adds the selected kaomoji to the selected database"""
+    """Queries the database for the keyword"""
 
     kaomojitool = KaomojiTool(cli_database_filename=database_filename,
                               cli_config_filename=config_filename)
 
     matches = kaomojitool.database.query(query_string)
     print(matches)
+
+###############################################################################
+# scrape                                                                      #
+###############################################################################
+@cli.command()
+@url_to_scrape_option
+@kaomoji_xpath_string_option
+@keywords_xpath_string_option
+@config_filename_option
+def scrape(url_to_scrape, kaomoji_xpath_string, keywords_xpath_string,
+           config_filename):
+    """Adds the selected kaomoji to the selected database"""
+
+    # https://devhints.io/xpath
+
+    url = url_to_scrape
+    page = requests.get(url)
+    tree = html.fromstring(page.content)
+    nds = tree.xpath(kaomoji_xpath_string)
+
+    tune_list = list()
+    for kaomoji in nds:
+        #print(1)
+        print(kaomoji.text_content())
+
+    #matches = kaomojitool.database.query(query_string)
+    #print(matches)
 
 if __name__ == "__main__":
 
