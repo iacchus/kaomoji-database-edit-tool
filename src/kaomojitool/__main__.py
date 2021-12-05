@@ -29,54 +29,6 @@ USER_CONFIG: dict
 
 CONFIG = DEFAULT_CONFIG  # initialize it with defaults
 
-# def get_user_config_file(filename):
-#
-#     config_file = os.path.expanduser(filename)
-#
-#     if os.path.isfile(config_file):
-#         return toml.load(config_file)
-#
-#     return DEFAULT_CONFIG
-#
-# def backup_database(db: KaomojiDB):
-#
-#     timestamp = time.time()
-#     backup_filename = "{filename}.{timestamp}.bkp".format(filename=db.filename,
-#                                                           timestamp=timestamp)
-#     backup = KaomojiDB(filename=db.filename)
-#     backup.write(filename=backup_filename)
-#
-#
-# def open_database(database_filename):
-#
-#     # HERE: also check if it is valid
-#     if os.path.isfile(database_filename):
-#         return KaomojiDB(filename=database_filename)
-#     else:
-#         raise KaomojiToolNoDatabase
-#
-#     return None
-#
-#
-# def update_config(database_filename=None, config_filename=None,
-#                   config=CONFIG,
-#                   user_config_filename=USER_CONFIG_FILENAME):
-#     """Updates config with priority:
-#     1. user command-line entry.
-#     2. userdefault config file.
-#     3. default config.
-#     """
-#
-#     if config_filename and os.path.isfile(config_filename):
-#         user_config = get_user_config_file(filename=user_config_filename)
-#         global_config.update(user_config)
-#
-#     if database_filename:
-#         global_config.update({'database_filename': database_filename})
-#
-#     return global_config
-
-
 USER_CONFIG = dict()
 
 class KaomojiTool:
@@ -244,7 +196,8 @@ def add(database_filename, kaomoji_code, keywords, config_filename):
     kaomojitool = KaomojiTool(database_filename=database_filename,
                               config_filename=config_filename)
 
-    print("Backing up the database '{}'...".format(kaomojitool.database.filename))
+    print("Backing up the database '{}'...".\
+          format(kaomojitool.database.filename))
     kaomojitool.backup_database()
 
     kaomoji_add_list: list = list()
@@ -292,18 +245,8 @@ def edit(database_filename, kaomoji_code, keywords_add, keywords_remove,
     keywords.
     """
 
-    kaomojitool = Kaomojitool(database_filename=database_filename,
+    kaomojitool = KaomojiTool(database_filename=database_filename,
                               config_filename=config_filename)
-
-    print("Backing up the database '{}'...".format(kaomojitool.database.filename))
-    kaomojitool.backup_database()
-    # config = update_config(database_filename, config_filename)
-    #
-    # kaomojitool.database.filename = config['database_filename']
-    # kaomojitool.database = open_database(database_filename=kaomojitool.database.filename)
-    #
-    # if not kaomojitool.database:
-    #     raise KaomojiToolNoDatabase
 
     keywords_to_add = ",".join(keywords_add)  # adding will have preemptiness
     keywords_to_remove = ",".join(keywords_remove)
@@ -323,7 +266,7 @@ def edit(database_filename, kaomoji_code, keywords_add, keywords_remove,
         edit_kaomoji.add_keywords(keywords=keywords_to_add)
 
     print("Backing up the database...")
-    backup_database(db=kaomojitool.database)
+    kaomojitool.backup_database(db=kaomojitool.database)
 
     print("Editing...")
     print("kaomoji:", edit_kaomoji.code)
@@ -344,26 +287,15 @@ def edit(database_filename, kaomoji_code, keywords_add, keywords_remove,
 def rm(database_filename, kaomoji_code, config_filename):
     """Removes the selected kaomoji from the selected database"""
 
-    kaomojitool = Kaomojitool(database_filename=database_filename,
+    kaomojitool = KaomojiTool(database_filename=database_filename,
                               config_filename=config_filename)
-
-    print("Backing up the database '{}'...".format(kaomojitool.database.filename))
-    kaomojitool.backup_database()
-
-    # config = update_config(database_filename, config_filename)
-    #
-    # kaomojitool.database.filename = config['database_filename']
-    # kaomojitool.database = open_database(database_filename=kaomojitool.database.filename)
-    #
-    # if not kaomojitool.database:
-    #     raise KaomojiToolNoDatabase
 
     if kaomoji_code:
         kaomoji_to_remove = Kaomoji(code=kaomoji_code)
 
     if kaomojitool.database.kaomoji_exists(kaomoji_to_remove):
         print("Backing up the database...")
-        backup_database(db=kaomojitool.database)
+        kaomojitool.backup_database(db=kaomojitool.database)
 
         print("Removing...")
         print("kaomoji:", kaomoji_to_remove.code)
@@ -387,18 +319,8 @@ def rm(database_filename, kaomoji_code, config_filename):
 def kwadd(database_filename, kaomoji_code, keywords, config_filename):
     """Add keywords to the selected kaomoji."""
 
-    kaomojitool = Kaomojitool(database_filename=database_filename,
+    kaomojitool = KaomojiTool(database_filename=database_filename,
                               config_filename=config_filename)
-
-    print("Backing up the database '{}'...".format(kaomojitool.database.filename))
-    kaomojitool.backup_database()
-    # config = update_config(database_filename, config_filename)
-    #
-    # kaomojitool.database.filename = config['database_filename']
-    # kaomojitool.database = open_database(database_filename=kaomojitool.database.filename)
-    #
-    # if not kaomojitool.database:
-    #     raise KaomojiToolNoDatabase
 
     if not kaomojitool.database.get_kaomoji(by_entity=kaomoji_code):
         print("New kaomoji! Adding it do database...")
@@ -412,7 +334,7 @@ def kwadd(database_filename, kaomoji_code, keywords, config_filename):
     edit_kaomoji.add_keywords(keywords=keywords)
 
     print("Backing up the database...")
-    backup_database(db=kaomojitool.database)
+    kaomojitool.backup_database(db=kaomojitool.database)
 
     print("Removing keywords...")
     print("kaomoji:", edit_kaomoji.code)
@@ -434,19 +356,8 @@ def kwadd(database_filename, kaomoji_code, keywords, config_filename):
 def kwrm(database_filename, kaomoji_code, keywords, config_filename):
     """Remove keywords to the selected kaomoji."""
 
-    kaomojitool = Kaomojitool(database_filename=database_filename,
+    kaomojitool = KaomojiTool(database_filename=database_filename,
                               config_filename=config_filename)
-
-    print("Backing up the database '{}'...".format(kaomojitool.database.filename))
-    kaomojitool.backup_database()
-
-    # config = update_config(database_filename, config_filename)
-    #
-    # kaomojitool.database.filename = config['database_filename']
-    # kaomojitool.database = open_database(database_filename=kaomojitool.database.filename)
-    #
-    # if not kaomojitool.database:
-    #     raise KaomojiToolNoDatabase
 
     if not kaomojitool.database.get_kaomoji(by_entity=kaomoji_code):
         print("New kaomoji! Adding it do database...")
@@ -459,7 +370,7 @@ def kwrm(database_filename, kaomoji_code, keywords, config_filename):
     edit_kaomoji.remove_keywords(keywords=keywords)
 
     print("Backing up the database...")
-    backup_database(db=kaomojitool.database)
+    kaomojitool.backup_database()
 
     print("Removing keywords...")
     print("kaomoji:", edit_kaomoji.code)
@@ -482,21 +393,20 @@ def diff(database_filename, other_database_filename, diff_type,
          config_filename):
     """Compare two databases and logs the difference between them."""
 
-    kaomojitool = Kaomojitool(database_filename=database_filename,
+    kaomojitool = KaomojiTool(database_filename=database_filename,
                               config_filename=config_filename)
 
-    print("Backing up the database '{}'...".format(kaomojitool.database.filename))
-    kaomojitool.backup_database()
-    # config = update_config(database_filename, config_filename)
+    kaomojitool_other =\
+        KaomojiTool(database_filename=other_database_filename,
+                    config_filename=config_filename)
+    # kaomojitool.database.filename = config['database_filename']
+    # kaomoji_db = open_database(database_filename=kaomojitool.database.filename)
+    # other_db = open_database(database_filename=other_database_filename)
 
-    kaomojitool.database.filename = config['database_filename']
-    kaomoji_db = open_database(database_filename=kaomojitool.database.filename)
-    other_db = open_database(database_filename=other_database_filename)
-
-    if not kaomoji_db or not other_db:
+    if not kaomojitool.database or not kaomojitool_other.database:
         raise KaomojiToolNoDatabase
 
-    diff_dict = kaomoji_db.compare(other=other_db, diff_type=diff_type)
+    diff_dict = kaomoji_database.compare(other=other_db, diff_type=diff_type)
     print(diff_dict)
 
     # TAKE SHA256, FORMAT FOR kaomojitool.database, WRITE
@@ -511,7 +421,7 @@ def diff(database_filename, other_database_filename, diff_type,
 def dbstatus(database_filename, config_filename):
     """Show data from the database."""
 
-    kaomojitool = Kaomojitool(database_filename=database_filename,
+    kaomojitool = KaomojiTool(database_filename=database_filename,
                               config_filename=config_filename)
 
     print("Backing up the database '{}'...".format(kaomojitool.database.filename))
@@ -519,12 +429,12 @@ def dbstatus(database_filename, config_filename):
     # config = update_config(database_filename, config_filename)
 
     kaomojitool.database.filename = config['database_filename']
-    kaomoji_db = open_database(database_filename=kaomojitool.database.filename)
+    kaomoji_database = open_database(database_filename=kaomojitool.database.filename)
 
-    if not kaomoji_db:
+    if not kaomoji_database:
         raise KaomojiToolNoDatabase
 
-    number_of_kaomoji = len(kaomoji_db.kaomojis)
+    number_of_kaomoji = len(kaomoji_database.kaomojis)
 
     print("database file:", kaomojitool.database.filename)
     print("number of kaomojis:", number_of_kaomoji)
@@ -540,7 +450,7 @@ def dbstatus(database_filename, config_filename):
 def query(database_filename, query_string, config_filename):
     """Adds the selected kaomoji to the selected database"""
 
-    kaomojitool = Kaomojitool(database_filename=database_filename,
+    kaomojitool = KaomojiTool(database_filename=database_filename,
                               config_filename=config_filename)
 
     print("Backing up the database '{}'...".format(kaomojitool.database.filename))
