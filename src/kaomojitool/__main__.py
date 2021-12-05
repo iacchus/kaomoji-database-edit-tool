@@ -478,10 +478,21 @@ def query(database_filename, query_string, config_filename):
 @url_to_scrape_option
 @kaomoji_xpath_string_option
 @keywords_xpath_string_option
+@container_xpath_string_option
 @config_filename_option
 def scrape(url_to_scrape, kaomoji_xpath_string, keywords_xpath_string,
            container_xpath_string, config_filename):
-    """Adds the selected kaomoji to the selected database"""
+    """Scrape kaomoji on websites via XPath.
+
+    NON-IMPLEMENTED: Also, can scrape keywords and add them to kaomoji.
+
+    Redirect the output to a file then add using 'kaomojitool add'.
+
+    $ kaomojitool scrape -u <HTTPS://WEBSITE_ADDRESS> -x <XPATH> > MY_OUTPUT
+    $ cat MY_OUTPUT | kaomojitool add
+
+    First check output for broken/multiline items.
+    """
 
     # https://devhints.io/xpath
 
@@ -492,11 +503,10 @@ def scrape(url_to_scrape, kaomoji_xpath_string, keywords_xpath_string,
 
     tune_list = list()
     for kaomoji in nds:
-        #print(1)
         print(kaomoji.text_content())
 
-    #matches = kaomojitool.database.query(query_string)
-    #print(matches)
+
+
 
 if __name__ == "__main__":
 
